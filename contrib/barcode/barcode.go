@@ -34,7 +34,7 @@ import (
 	"github.com/boombuler/barcode/ean"
 	"github.com/boombuler/barcode/qr"
 	"github.com/boombuler/barcode/twooffive"
-	"github.com/jung-kurt/gofpdf"
+	"github.com/phpdave11/gofpdf"
 	"github.com/ruudk/golang-pdf417"
 )
 

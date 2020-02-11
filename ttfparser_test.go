@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/jung-kurt/gofpdf"
-	"github.com/jung-kurt/gofpdf/internal/example"
+	"github.com/phpdave11/gofpdf"
+	"github.com/phpdave11/gofpdf/internal/example"
 )
 
 func ExampleTtfParse() {
