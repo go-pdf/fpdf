@@ -1,6 +1,5 @@
 # GoFPDF document generator
 
-[![No Maintenance Intended][badge-no-maintain]][unmaintained]
 [![MIT licensed][badge-mit]][license]
 [![Report][badge-report]][report]
 [![GoDoc][badge-doc]][godoc]
@@ -42,23 +41,6 @@ purpose fonts. For these languages, a specialized font (for example,
 
 Also, support is provided to automatically translate UTF-8 runes to code page
 encodings for languages that have fewer than 256 glyphs.
-
-## We Are Closed
-
-This repository will not be maintained, at least for some unknown duration. But
-it is hoped that gofpdf has a bright future in the open source world. Due to
-Go's promise of compatibility, gofpdf should continue to function without
-modification for a longer time than would be the case with many other
-languages.
-
-Forks should be based on the [last viable commit][last-commit]. Tools such as
-[active-forks][gofpdf-fork] can be used to select a fork that looks promising
-for your needs. If a particular fork looks like it has taken the lead in
-attracting followers, this README will be updated to point people in that
-direction.
-
-The efforts of all contributors to this project have been deeply appreciated.
-Best wishes to all of you.
 
 ## Installation
 
