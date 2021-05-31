@@ -862,20 +862,42 @@ func colorComp(v int) (int, float64) {
 	return v, float64(v) / 255.0
 }
 
-func rgbColorValue(r, g, b int, grayStr, fullStr string) (clr colorType) {
+func (f *Fpdf) rgbColorValue(r, g, b int, grayStr, fullStr string) (clr colorType) {
 	clr.ir, clr.r = colorComp(r)
 	clr.ig, clr.g = colorComp(g)
 	clr.ib, clr.b = colorComp(b)
 	clr.mode = colorModeRGB
 	clr.gray = clr.ir == clr.ig && clr.r == clr.b
+	const prec = 3
 	if len(grayStr) > 0 {
 		if clr.gray {
-			clr.str = sprintf("%.3f %s", clr.r, grayStr)
+			// clr.str = sprintf("%.3f %s", clr.r, grayStr)
+			f.fmt.col.Reset()
+			f.fmt.col.WriteString(f.fmtF64(clr.r, prec))
+			f.fmt.col.WriteString(" ")
+			f.fmt.col.WriteString(grayStr)
+			clr.str = f.fmt.col.String()
 		} else {
-			clr.str = sprintf("%.3f %.3f %.3f %s", clr.r, clr.g, clr.b, fullStr)
+			// clr.str = sprintf("%.3f %.3f %.3f %s", clr.r, clr.g, clr.b, fullStr)
+			f.fmt.col.Reset()
+			f.fmt.col.WriteString(f.fmtF64(clr.r, prec))
+			f.fmt.col.WriteString(" ")
+			f.fmt.col.WriteString(f.fmtF64(clr.g, prec))
+			f.fmt.col.WriteString(" ")
+			f.fmt.col.WriteString(f.fmtF64(clr.b, prec))
+			f.fmt.col.WriteString(" ")
+			f.fmt.col.WriteString(fullStr)
+			clr.str = f.fmt.col.String()
 		}
 	} else {
-		clr.str = sprintf("%.3f %.3f %.3f", clr.r, clr.g, clr.b)
+		// clr.str = sprintf("%.3f %.3f %.3f", clr.r, clr.g, clr.b)
+		f.fmt.col.Reset()
+		f.fmt.col.WriteString(f.fmtF64(clr.r, prec))
+		f.fmt.col.WriteString(" ")
+		f.fmt.col.WriteString(f.fmtF64(clr.g, prec))
+		f.fmt.col.WriteString(" ")
+		f.fmt.col.WriteString(f.fmtF64(clr.b, prec))
+		clr.str = f.fmt.col.String()
 	}
 	return
 }
@@ -889,7 +911,7 @@ func (f *Fpdf) SetDrawColor(r, g, b int) {
 }
 
 func (f *Fpdf) setDrawColor(r, g, b int) {
-	f.color.draw = rgbColorValue(r, g, b, "G", "RG")
+	f.color.draw = f.rgbColorValue(r, g, b, "G", "RG")
 	if f.page > 0 {
 		f.out(f.color.draw.str)
 	}
@@ -911,7 +933,7 @@ func (f *Fpdf) SetFillColor(r, g, b int) {
 }
 
 func (f *Fpdf) setFillColor(r, g, b int) {
-	f.color.fill = rgbColorValue(r, g, b, "g", "rg")
+	f.color.fill = f.rgbColorValue(r, g, b, "g", "rg")
 	f.colorFlag = f.color.fill.str != f.color.text.str
 	if f.page > 0 {
 		f.out(f.color.fill.str)
@@ -933,7 +955,7 @@ func (f *Fpdf) SetTextColor(r, g, b int) {
 }
 
 func (f *Fpdf) setTextColor(r, g, b int) {
-	f.color.text = rgbColorValue(r, g, b, "g", "rg")
+	f.color.text = f.rgbColorValue(r, g, b, "g", "rg")
 	f.colorFlag = f.color.fill.str != f.color.text.str
 }
 
@@ -1478,8 +1500,8 @@ func (f *Fpdf) gradientClipEnd() {
 
 func (f *Fpdf) gradient(tp, r1, g1, b1, r2, g2, b2 int, x1, y1, x2, y2, r float64) {
 	pos := len(f.gradientList)
-	clr1 := rgbColorValue(r1, g1, b1, "", "")
-	clr2 := rgbColorValue(r2, g2, b2, "", "")
+	clr1 := f.rgbColorValue(r1, g1, b1, "", "")
+	clr2 := f.rgbColorValue(r2, g2, b2, "", "")
 	f.gradientList = append(f.gradientList, gradientType{tp, clr1.str, clr2.str,
 		x1, y1, x2, y2, r, 0})
 	f.outf("/Sh%d sh", pos)

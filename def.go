@@ -603,7 +603,8 @@ type Fpdf struct {
 	userUnderlineThickness float64                  // A custom user underline thickness multiplier.
 
 	fmt struct {
-		buf []byte // buffer used to format numbers.
+		buf []byte       // buffer used to format numbers.
+		col bytes.Buffer // buffer used to build color strings.
 	}
 }
 
