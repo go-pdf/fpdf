@@ -208,6 +208,11 @@ func fpdfNew(orientationStr, unitStr, sizeStr, fontDirStr string, size SizeType)
 	f.creationDate = gl.creationDate
 	f.modDate = gl.modDate
 	f.userUnderlineThickness = 1
+
+	// create a large enough buffer for formatting float64s.
+	// math.MaxInt64  needs 19.
+	// math.MaxUint64 needs 20.
+	f.fmt.buf = make([]byte, 24)
 	return
 }
 
@@ -990,7 +995,7 @@ func (f *Fpdf) SetLineWidth(width float64) {
 func (f *Fpdf) setLineWidth(width float64) {
 	f.lineWidth = width
 	if f.page > 0 {
-		f.outf("%.2f w", width*f.k)
+		f.out(f.fmtF64(width*f.k, 2) + " w")
 	}
 }
 
@@ -1079,7 +1084,16 @@ func (f *Fpdf) outputDashPattern() {
 // Line draws a line between points (x1, y1) and (x2, y2) using the current
 // draw color, line width and cap style.
 func (f *Fpdf) Line(x1, y1, x2, y2 float64) {
-	f.outf("%.2f %.2f m %.2f %.2f l S", x1*f.k, (f.h-y1)*f.k, x2*f.k, (f.h-y2)*f.k)
+	// f.outf("%.2f %.2f m %.2f %.2f l S", x1*f.k, (f.h-y1)*f.k, x2*f.k, (f.h-y2)*f.k)
+	const prec = 2
+	f.putF64(x1*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y1)*f.k, prec)
+	f.put(" m ")
+	f.putF64(x2*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y2)*f.k, prec)
+	f.put(" l S\n")
 }
 
 // fillDrawOp corrects path painting operators
@@ -1115,7 +1129,16 @@ func fillDrawOp(styleStr string) (opStr string) {
 // draw color and line width centered on the rectangle's perimeter. Filling
 // uses the current fill color.
 func (f *Fpdf) Rect(x, y, w, h float64, styleStr string) {
-	f.outf("%.2f %.2f %.2f %.2f re %s", x*f.k, (f.h-y)*f.k, w*f.k, -h*f.k, fillDrawOp(styleStr))
+	// f.outf("%.2f %.2f %.2f %.2f re %s", x*f.k, (f.h-y)*f.k, w*f.k, -h*f.k, fillDrawOp(styleStr))
+	const prec = 2
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y)*f.k, prec)
+	f.put(" ")
+	f.putF64(w*f.k, prec)
+	f.put(" ")
+	f.putF64(-h*f.k, prec)
+	f.put(" re " + fillDrawOp(styleStr) + "\n")
 }
 
 // RoundedRect outputs a rectangle of width w and height h with the upper left
@@ -1192,14 +1215,23 @@ func (f *Fpdf) Ellipse(x, y, rx, ry, degRotate float64, styleStr string) {
 // Filling uses the current fill color.
 func (f *Fpdf) Polygon(points []PointType, styleStr string) {
 	if len(points) > 2 {
+		const prec = 5
 		for j, pt := range points {
 			if j == 0 {
 				f.point(pt.X, pt.Y)
 			} else {
-				f.outf("%.5f %.5f l ", pt.X*f.k, (f.h-pt.Y)*f.k)
+				// f.outf("%.5f %.5f l ", pt.X*f.k, (f.h-pt.Y)*f.k)
+				f.putF64(pt.X*f.k, prec)
+				f.put(" ")
+				f.putF64((f.h-pt.Y)*f.k, prec)
+				f.put(" l \n")
 			}
 		}
-		f.outf("%.5f %.5f l ", points[0].X*f.k, (f.h-points[0].Y)*f.k)
+		// f.outf("%.5f %.5f l ", points[0].X*f.k, (f.h-points[0].Y)*f.k)
+		f.putF64(points[0].X*f.k, prec)
+		f.put(" ")
+		f.putF64((f.h-points[0].Y)*f.k, prec)
+		f.put(" l \n")
 		f.DrawPath(styleStr)
 	}
 }
@@ -1238,14 +1270,31 @@ func (f *Fpdf) Beziergon(points []PointType, styleStr string) {
 
 // point outputs current point
 func (f *Fpdf) point(x, y float64) {
-	f.outf("%.2f %.2f m", x*f.k, (f.h-y)*f.k)
+	// f.outf("%.2f %.2f m", x*f.k, (f.h-y)*f.k)
+	f.putF64(x*f.k, 2)
+	f.put(" ")
+	f.putF64((f.h-y)*f.k, 2)
+	f.put(" m\n")
 }
 
 // curve outputs a single cubic Bézier curve segment from current point
 func (f *Fpdf) curve(cx0, cy0, cx1, cy1, x, y float64) {
 	// Thanks, Robert Lillack, for straightening this out
-	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c", cx0*f.k, (f.h-cy0)*f.k, cx1*f.k,
-		(f.h-cy1)*f.k, x*f.k, (f.h-y)*f.k)
+	// f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c", cx0*f.k, (f.h-cy0)*f.k, cx1*f.k,
+	// 	(f.h-cy1)*f.k, x*f.k, (f.h-y)*f.k)
+	const prec = 5
+	f.putF64(cx0*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-cy0)*f.k, prec)
+	f.put(" ")
+	f.putF64(cx1*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-cy1)*f.k, prec)
+	f.put(" ")
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y)*f.k, prec)
+	f.put(" c\n")
 }
 
 // Curve draws a single-segment quadratic Bézier curve. The curve starts at
@@ -1263,8 +1312,17 @@ func (f *Fpdf) curve(cx0, cy0, cx1, cy1, x, y float64) {
 // The Circle() example demonstrates this method.
 func (f *Fpdf) Curve(x0, y0, cx, cy, x1, y1 float64, styleStr string) {
 	f.point(x0, y0)
-	f.outf("%.5f %.5f %.5f %.5f v %s", cx*f.k, (f.h-cy)*f.k, x1*f.k, (f.h-y1)*f.k,
-		fillDrawOp(styleStr))
+	// f.outf("%.5f %.5f %.5f %.5f v %s", cx*f.k, (f.h-cy)*f.k, x1*f.k, (f.h-y1)*f.k,
+	// 	fillDrawOp(styleStr))
+	const prec = 5
+	f.putF64(cx*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-cy)*f.k, prec)
+	f.put(" ")
+	f.putF64(x1*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y1)*f.k, prec)
+	f.put(" v " + fillDrawOp(styleStr) + "\n")
 }
 
 // CurveCubic draws a single-segment cubic Bézier curve. This routine performs
@@ -1295,8 +1353,21 @@ func (f *Fpdf) CurveCubic(x0, y0, cx0, cy0, x1, y1, cx1, cy1 float64, styleStr s
 // The Circle() example demonstrates this method.
 func (f *Fpdf) CurveBezierCubic(x0, y0, cx0, cy0, cx1, cy1, x1, y1 float64, styleStr string) {
 	f.point(x0, y0)
-	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c %s", cx0*f.k, (f.h-cy0)*f.k,
-		cx1*f.k, (f.h-cy1)*f.k, x1*f.k, (f.h-y1)*f.k, fillDrawOp(styleStr))
+	//	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c %s", cx0*f.k, (f.h-cy0)*f.k,
+	//		cx1*f.k, (f.h-cy1)*f.k, x1*f.k, (f.h-y1)*f.k, fillDrawOp(styleStr))
+	const prec = 5
+	f.putF64(cx0*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-cy0)*f.k, prec)
+	f.put(" ")
+	f.putF64(cx1*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-cy1)*f.k, prec)
+	f.put(" ")
+	f.putF64(x1*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y1)*f.k, prec)
+	f.put(" c " + fillDrawOp(styleStr) + "\n")
 }
 
 // Arc draws an elliptical arc centered at point (x, y). rx and ry specify its
@@ -1371,10 +1442,33 @@ func (f *Fpdf) SetAlpha(alpha float64, blendModeStr string) {
 }
 
 func (f *Fpdf) gradientClipStart(x, y, w, h float64) {
-	// Save current graphic state and set clipping area
-	f.outf("q %.2f %.2f %.2f %.2f re W n", x*f.k, (f.h-y)*f.k, w*f.k, -h*f.k)
-	// Set up transformation matrix for gradient
-	f.outf("%.5f 0 0 %.5f %.5f %.5f cm", w*f.k, h*f.k, x*f.k, (f.h-(y+h))*f.k)
+	{
+		const prec = 2
+		// Save current graphic state and set clipping area
+		// f.outf("q %.2f %.2f %.2f %.2f re W n", x*f.k, (f.h-y)*f.k, w*f.k, -h*f.k)
+		f.put("q ")
+		f.putF64(x*f.k, prec)
+		f.put(" ")
+		f.putF64((f.h-y)*f.k, prec)
+		f.put(" ")
+		f.putF64(w*f.k, prec)
+		f.put(" ")
+		f.putF64(-h*f.k, prec)
+		f.put(" re W n\n")
+	}
+	{
+		const prec = 5
+		// Set up transformation matrix for gradient
+		// f.outf("%.5f 0 0 %.5f %.5f %.5f cm", w*f.k, h*f.k, x*f.k, (f.h-(y+h))*f.k)
+		f.putF64(w*f.k, prec)
+		f.put(" 0 0 ")
+		f.putF64(h*f.k, prec)
+		f.put(" ")
+		f.putF64(x*f.k, prec)
+		f.put(" ")
+		f.putF64((f.h-(y+h))*f.k, prec)
+		f.put(" cm\n")
+	}
 }
 
 func (f *Fpdf) gradientClipEnd() {
@@ -1448,7 +1542,17 @@ func (f *Fpdf) RadialGradient(x, y, w, h float64, r1, g1, b1, r2, g2, b2 int, x1
 // This ClipText() example demonstrates this method.
 func (f *Fpdf) ClipRect(x, y, w, h float64, outline bool) {
 	f.clipNest++
-	f.outf("q %.2f %.2f %.2f %.2f re W %s", x*f.k, (f.h-y)*f.k, w*f.k, -h*f.k, strIf(outline, "S", "n"))
+	// f.outf("q %.2f %.2f %.2f %.2f re W %s", x*f.k, (f.h-y)*f.k, w*f.k, -h*f.k, strIf(outline, "S", "n"))
+	const prec = 2
+	f.put("q ")
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y)*f.k, prec)
+	f.put(" ")
+	f.putF64(w*f.k, prec)
+	f.put(" ")
+	f.putF64(-h*f.k, prec)
+	f.put(" re W " + strIf(outline, "S", "n") + "\n")
 }
 
 // ClipText begins a clipping operation in which rendering is confined to the
@@ -1461,13 +1565,36 @@ func (f *Fpdf) ClipRect(x, y, w, h float64, outline bool) {
 // restore unclipped operations.
 func (f *Fpdf) ClipText(x, y float64, txtStr string, outline bool) {
 	f.clipNest++
-	f.outf("q BT %.5f %.5f Td %d Tr (%s) Tj ET", x*f.k, (f.h-y)*f.k, intIf(outline, 5, 7), f.escape(txtStr))
+	// f.outf("q BT %.5f %.5f Td %d Tr (%s) Tj ET", x*f.k, (f.h-y)*f.k, intIf(outline, 5, 7), f.escape(txtStr))
+	const prec = 5
+	f.put("q BT ")
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y)*f.k, prec)
+	f.put(" Td ")
+	f.putInt(intIf(outline, 5, 7))
+	f.put(" Tr (")
+	f.put(f.escape(txtStr))
+	f.put(") Tj ET\n")
 }
 
 func (f *Fpdf) clipArc(x1, y1, x2, y2, x3, y3 float64) {
 	h := f.h
-	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c ", x1*f.k, (h-y1)*f.k,
-		x2*f.k, (h-y2)*f.k, x3*f.k, (h-y3)*f.k)
+	// f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c ", x1*f.k, (h-y1)*f.k,
+	// 	x2*f.k, (h-y2)*f.k, x3*f.k, (h-y3)*f.k)
+	const prec = 5
+	f.putF64(x1*f.k, prec)
+	f.put(" ")
+	f.putF64((h-y1)*f.k, prec)
+	f.put(" ")
+	f.putF64(x2*f.k, prec)
+	f.put(" ")
+	f.putF64((h-y2)*f.k, prec)
+	f.put(" ")
+	f.putF64(x3*f.k, prec)
+	f.put(" ")
+	f.putF64((h-y3)*f.k, prec)
+	f.put(" c \n")
 }
 
 // ClipRoundedRect begins a rectangular clipping operation. The rectangle is of
@@ -1501,28 +1628,50 @@ func (f *Fpdf) roundedRectPath(x, y, w, h, rTL, rTR, rBR, rBL float64) {
 	k := f.k
 	hp := f.h
 	myArc := (4.0 / 3.0) * (math.Sqrt2 - 1.0)
-	f.outf("q %.5f %.5f m", (x+rTL)*k, (hp-y)*k)
+	// f.outf("q %.5f %.5f m", (x+rTL)*k, (hp-y)*k)
+	const prec = 5
+	f.put("q ")
+	f.putF64((x+rTL)*k, prec)
+	f.put(" ")
+	f.putF64((hp-y)*k, prec)
+	f.put(" m\n")
 	xc := x + w - rTR
 	yc := y + rTR
-	f.outf("%.5f %.5f l", xc*k, (hp-y)*k)
+	// f.outf("%.5f %.5f l", xc*k, (hp-y)*k)
+	f.putF64(xc*k, prec)
+	f.put(" ")
+	f.putF64((hp-y)*k, prec)
+	f.put(" l\n")
 	if rTR != 0 {
 		f.clipArc(xc+rTR*myArc, yc-rTR, xc+rTR, yc-rTR*myArc, xc+rTR, yc)
 	}
 	xc = x + w - rBR
 	yc = y + h - rBR
-	f.outf("%.5f %.5f l", (x+w)*k, (hp-yc)*k)
+	// f.outf("%.5f %.5f l", (x+w)*k, (hp-yc)*k)
+	f.putF64((x+w)*k, prec)
+	f.put(" ")
+	f.putF64((hp-yc)*k, prec)
+	f.put(" l\n")
 	if rBR != 0 {
 		f.clipArc(xc+rBR, yc+rBR*myArc, xc+rBR*myArc, yc+rBR, xc, yc+rBR)
 	}
 	xc = x + rBL
 	yc = y + h - rBL
-	f.outf("%.5f %.5f l", xc*k, (hp-(y+h))*k)
+	// f.outf("%.5f %.5f l", xc*k, (hp-(y+h))*k)
+	f.putF64(xc*k, prec)
+	f.put(" ")
+	f.putF64((hp-(y+h))*k, prec)
+	f.put(" l\n")
 	if rBL != 0 {
 		f.clipArc(xc-rBL*myArc, yc+rBL, xc-rBL, yc+rBL*myArc, xc-rBL, yc)
 	}
 	xc = x + rTL
 	yc = y + rTL
-	f.outf("%.5f %.5f l", x*k, (hp-yc)*k)
+	// f.outf("%.5f %.5f l", x*k, (hp-yc)*k)
+	f.putF64(x*k, prec)
+	f.put(" ")
+	f.putF64((hp-yc)*k, prec)
+	f.put(" l\n")
 	if rTL != 0 {
 		f.clipArc(xc-rTL, yc-rTL*myArc, xc-rTL*myArc, yc-rTL, xc, yc-rTL)
 	}
@@ -1543,24 +1692,81 @@ func (f *Fpdf) ClipEllipse(x, y, rx, ry float64, outline bool) {
 	ly := (4.0 / 3.0) * ry * (math.Sqrt2 - 1)
 	k := f.k
 	h := f.h
-	f.outf("q %.5f %.5f m %.5f %.5f %.5f %.5f %.5f %.5f c",
-		(x+rx)*k, (h-y)*k,
-		(x+rx)*k, (h-(y-ly))*k,
-		(x+lx)*k, (h-(y-ry))*k,
-		x*k, (h-(y-ry))*k)
-	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c",
-		(x-lx)*k, (h-(y-ry))*k,
-		(x-rx)*k, (h-(y-ly))*k,
-		(x-rx)*k, (h-y)*k)
-	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c",
-		(x-rx)*k, (h-(y+ly))*k,
-		(x-lx)*k, (h-(y+ry))*k,
-		x*k, (h-(y+ry))*k)
-	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c W %s",
-		(x+lx)*k, (h-(y+ry))*k,
-		(x+rx)*k, (h-(y+ly))*k,
-		(x+rx)*k, (h-y)*k,
-		strIf(outline, "S", "n"))
+	//	f.outf("q %.5f %.5f m %.5f %.5f %.5f %.5f %.5f %.5f c",
+	//		(x+rx)*k, (h-y)*k,
+	//		(x+rx)*k, (h-(y-ly))*k,
+	//		(x+lx)*k, (h-(y-ry))*k,
+	//		x*k, (h-(y-ry))*k)
+	const prec = 5
+	f.put("q ")
+	f.putF64((x+rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-y)*k, prec)
+	f.put(" m ")
+	f.putF64((x+rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y-ly))*k, prec)
+	f.put(" ")
+	f.putF64((x+lx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y-ry))*k, prec)
+	f.put(" ")
+	f.putF64(x*k, prec)
+	f.put(" ")
+	f.putF64((h-(y-ry))*k, prec)
+	f.put(" c\n")
+
+	//	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c",
+	//		(x-lx)*k, (h-(y-ry))*k,
+	//		(x-rx)*k, (h-(y-ly))*k,
+	//		(x-rx)*k, (h-y)*k)
+	f.putF64((x-lx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y-ry))*k, prec)
+	f.put(" ")
+	f.putF64((x-rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y-ly))*k, prec)
+	f.put(" ")
+	f.putF64((x-rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-y)*k, prec)
+	f.put(" c\n")
+
+	//	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c",
+	//		(x-rx)*k, (h-(y+ly))*k,
+	//		(x-lx)*k, (h-(y+ry))*k,
+	//		x*k, (h-(y+ry))*k)
+	f.putF64((x-rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y+ly))*k, prec)
+	f.put(" ")
+	f.putF64((x-lx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y+ry))*k, prec)
+	f.put(" ")
+	f.putF64(x*k, prec)
+	f.put(" ")
+	f.putF64((h-(y+ry))*k, prec)
+	f.put(" c\n")
+
+	//	f.outf("%.5f %.5f %.5f %.5f %.5f %.5f c W %s",
+	//		(x+lx)*k, (h-(y+ry))*k,
+	//		(x+rx)*k, (h-(y+ly))*k,
+	//		(x+rx)*k, (h-y)*k,
+	//		strIf(outline, "S", "n"))
+	f.putF64((x+lx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y+ry))*k, prec)
+	f.put(" ")
+	f.putF64((x+rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-(y+ly))*k, prec)
+	f.put(" ")
+	f.putF64((x+rx)*k, prec)
+	f.put(" ")
+	f.putF64((h-y)*k, prec)
+	f.put(" c W " + strIf(outline, "S", "n") + "\n")
 }
 
 // ClipCircle begins a circular clipping operation. The circle is centered at
@@ -2332,7 +2538,9 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		f.x = x
 		if ws > 0 {
 			f.ws = ws
-			f.outf("%.3f Tw", ws*k)
+			// f.outf("%.3f Tw", ws*k)
+			f.putF64(ws*k, 3)
+			f.put(" Tw\n")
 		}
 	}
 	if w == 0 {
@@ -2732,7 +2940,9 @@ func (f *Fpdf) MultiCell(w, h float64, txtStr, borderStr, alignStr string, fill 
 					} else {
 						f.ws = 0
 					}
-					f.outf("%.3f Tw", f.ws*f.k)
+					// f.outf("%.3f Tw", f.ws*f.k)
+					f.putF64(f.ws*f.k, 3)
+					f.put(" Tw\n")
 				}
 				if f.isCurrentUTF8 {
 					f.CellFormat(w, h, string(srune[j:sep]), b, 2, alignStr, fill, 0, "")
@@ -3047,7 +3257,17 @@ func (f *Fpdf) imageOut(info *ImageInfoType, x, y, w, h float64, allowNegativeX,
 	}
 	// dbg("h %.2f", h)
 	// q 85.04 0 0 NaN 28.35 NaN cm /I2 Do Q
-	f.outf("q %.5f 0 0 %.5f %.5f %.5f cm /I%s Do Q", w*f.k, h*f.k, x*f.k, (f.h-(y+h))*f.k, info.i)
+	// f.outf("q %.5f 0 0 %.5f %.5f %.5f cm /I%s Do Q", w*f.k, h*f.k, x*f.k, (f.h-(y+h))*f.k, info.i)
+	const prec = 5
+	f.put("q ")
+	f.putF64(w*f.k, prec)
+	f.put(" 0 0 ")
+	f.putF64(h*f.k, prec)
+	f.put(" ")
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-(y+h))*f.k, prec)
+	f.put(" cm /I" + info.i + " Do Q\n")
 	if link > 0 || len(linkStr) > 0 {
 		f.newLink(x, y, w, h, link, linkStr)
 	}
@@ -3749,6 +3969,14 @@ func (f *Fpdf) out(s string) {
 	}
 }
 
+func (f *Fpdf) put(s string) {
+	if f.state == 2 {
+		f.pages[f.page].WriteString(s)
+	} else {
+		f.buffer.WriteString(s)
+	}
+}
+
 // outbuf adds a buffered line to the document
 func (f *Fpdf) outbuf(r io.Reader) {
 	if f.state == 2 {
@@ -3779,6 +4007,23 @@ func (f *Fpdf) RawWriteBuf(r io.Reader) {
 // outf adds a formatted line to the document
 func (f *Fpdf) outf(fmtStr string, args ...interface{}) {
 	f.out(sprintf(fmtStr, args...))
+}
+
+func (f *Fpdf) putF64(v float64, prec int) {
+	f.put(f.fmtF64(v, prec))
+}
+
+// fmtF64 converts the floating-point number f to a string with precision prec.
+func (f *Fpdf) fmtF64(v float64, prec int) string {
+	return string(strconv.AppendFloat(f.fmt.buf[:0], v, 'f', prec, 64))
+}
+
+func (f *Fpdf) putInt(v int) {
+	f.put(f.fmtInt(v))
+}
+
+func (f *Fpdf) fmtInt(v int) string {
+	return string(strconv.AppendInt(f.fmt.buf[:0], int64(v), 10))
 }
 
 // SetDefaultCatalogSort sets the default value of the catalog sort flag that
@@ -4831,7 +5076,14 @@ func (f *Fpdf) MoveTo(x, y float64) {
 //
 // The MoveTo() example demonstrates this method.
 func (f *Fpdf) LineTo(x, y float64) {
-	f.outf("%.2f %.2f l", x*f.k, (f.h-y)*f.k)
+	// f.outf("%.2f %.2f l", x*f.k, (f.h-y)*f.k)
+	const prec = 2
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+
+	f.putF64((f.h-y)*f.k, prec)
+	f.put(" l\n")
+
 	f.x, f.y = x, y
 }
 
@@ -4844,7 +5096,16 @@ func (f *Fpdf) LineTo(x, y float64) {
 //
 // The MoveTo() example demonstrates this method.
 func (f *Fpdf) CurveTo(cx, cy, x, y float64) {
-	f.outf("%.5f %.5f %.5f %.5f v", cx*f.k, (f.h-cy)*f.k, x*f.k, (f.h-y)*f.k)
+	// f.outf("%.5f %.5f %.5f %.5f v", cx*f.k, (f.h-cy)*f.k, x*f.k, (f.h-y)*f.k)
+	const prec = 5
+	f.putF64(cx*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-cy)*f.k, prec)
+	f.put(" ")
+	f.putF64(x*f.k, prec)
+	f.put(" ")
+	f.putF64((f.h-y)*f.k, prec)
+	f.put(" v\n")
 	f.x, f.y = x, y
 }
 
@@ -4929,9 +5190,25 @@ func (f *Fpdf) arc(x, y, rx, ry, degRotate, degStart, degEnd float64,
 	dtm := dt / 3
 	if degRotate != 0 {
 		a := -degRotate * math.Pi / 180
-		f.outf("q %.5f %.5f %.5f %.5f %.5f %.5f cm",
-			math.Cos(a), -1*math.Sin(a),
-			math.Sin(a), math.Cos(a), x, y)
+		sin, cos := math.Sincos(a)
+		//	f.outf("q %.5f %.5f %.5f %.5f %.5f %.5f cm",
+		//		math.Cos(a), -1*math.Sin(a),
+		//		math.Sin(a), math.Cos(a), x, y)
+		const prec = 5
+		f.put("q ")
+		f.putF64(cos, prec)
+		f.put(" ")
+		f.putF64(-1*sin, prec)
+		f.put(" ")
+		f.putF64(sin, prec)
+		f.put(" ")
+		f.putF64(cos, prec)
+		f.put(" ")
+		f.putF64(x, prec)
+		f.put(" ")
+		f.putF64(y, prec)
+		f.put(" cm\n")
+
 		x = 0
 		y = 0
 	}
