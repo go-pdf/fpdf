@@ -1,5 +1,5 @@
 /*
-Package gofpdf implements a PDF document generator with high level
+Package go-pdf/fpdf implements a PDF document generator with high level
 support for text, drawing and images.
 
 
@@ -44,10 +44,10 @@ Features
 
 -   Import PDFs as templates
 
-gofpdf has no dependencies other than the Go standard library. All tests
+go-pdf/fpdf has no dependencies other than the Go standard library. All tests
 pass on Linux, Mac and Windows platforms.
 
-gofpdf supports UTF-8 TrueType fonts and “right-to-left” languages. Note
+go-pdf/fpdf supports UTF-8 TrueType fonts and “right-to-left” languages. Note
 that Chinese, Japanese, and Korean characters may not be included in
 many general purpose fonts. For these languages, a specialized font (for
 example, NotoSansSC for simplified Chinese) can be used.
@@ -60,18 +60,18 @@ Installation
 
 To install the package on your system, run
 
-    go get github.com/phpdave11/gofpdf
+    go get github.com/go-pdf/fpdf
 
 Later, to receive updates, run
 
-    go get -u -v github.com/phpdave11/gofpdf/...
+    go get -u -v github.com/go-pdf/fpdf/...
 
 
 Quick Start
 
 The following Go code generates a simple PDF file.
 
-    pdf := gofpdf.New("P", "mm", "A4", "")
+    pdf := fpdf.New("P", "mm", "A4", "")
     pdf.AddPage()
     pdf.SetFont("Arial", "B", 16)
     pdf.Cell(40, 10, "Hello, world")
@@ -121,7 +121,7 @@ PHP.
 Example PDFs
 
 A side effect of running go test ./... is the production of a number of
-example PDFs. These can be found in the gofpdf/pdf directory after the
+example PDFs. These can be found in the go-pdf/fpdf/pdf directory after the
 tests complete.
 
 Please note that these examples run in the context of a test. In order
@@ -132,7 +132,7 @@ summary().
 Example PDFs can be compared with reference copies in order to verify
 that they have been generated as expected. This comparison will be
 performed if a PDF with the same name as the example PDF is placed in
-the gofpdf/pdf/reference directory and if the third argument to
+the go-pdf/fpdf/pdf/reference directory and if the third argument to
 ComparePDFFiles() in internal/example/example.go is true. (By default it
 is false.) The routine that summarizes an example will look for this
 file and, if found, will call ComparePDFFiles() to check the example PDF
@@ -270,4 +270,4 @@ Roadmap
 
 -   Improve test coverage as reported by the coverage tool.
 */
-package gofpdf
+package fpdf

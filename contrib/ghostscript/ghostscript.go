@@ -9,7 +9,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/phpdave11/gofpdf"
+	"github.com/go-pdf/fpdf"
 )
 
 func report(fileStr string, err error) {
@@ -26,8 +26,8 @@ func report(fileStr string, err error) {
 	}
 }
 
-func newPdf() (pdf *gofpdf.Fpdf) {
-	pdf = gofpdf.New("P", "mm", "A4", "../../font")
+func newPdf() (pdf *fpdf.Fpdf) {
+	pdf = fpdf.New("P", "mm", "A4", "../../font")
 	pdf.SetCompression(false)
 	pdf.AddFont("Calligrapher", "", "calligra.json")
 	pdf.AddPage()

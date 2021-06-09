@@ -24,17 +24,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/phpdave11/gofpdf"
+	"github.com/go-pdf/fpdf"
 )
 
 var gofpdfDir string
 
 func init() {
 	setRoot()
-	gofpdf.SetDefaultCompression(false)
-	gofpdf.SetDefaultCatalogSort(true)
-	gofpdf.SetDefaultCreationDate(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC))
-	gofpdf.SetDefaultModificationDate(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC))
+	fpdf.SetDefaultCompression(false)
+	fpdf.SetDefaultCatalogSort(true)
+	fpdf.SetDefaultCreationDate(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC))
+	fpdf.SetDefaultModificationDate(time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC))
 }
 
 // setRoot assigns the relative path to the gofpdfDir directory based on current working
@@ -44,7 +44,7 @@ func setRoot() {
 	if err == nil {
 		gofpdfDir = ""
 		list := strings.Split(filepath.ToSlash(wdStr), "/")
-		for j := len(list) - 1; j >= 0 && list[j] != "gofpdf"; j-- {
+		for j := len(list) - 1; j >= 0 && list[j] != "fpdf"; j-- {
 			gofpdfDir = filepath.Join(gofpdfDir, "..")
 		}
 	} else {
@@ -105,7 +105,7 @@ func referenceCompare(fileStr string) (err error) {
 	err = os.MkdirAll(refDirStr, 0755)
 	if err == nil {
 		refFileStr = filepath.Join(refDirStr, baseFileStr)
-		err = gofpdf.ComparePDFFiles(fileStr, refFileStr, false)
+		err = fpdf.ComparePDFFiles(fileStr, refFileStr, false)
 	}
 	return
 }

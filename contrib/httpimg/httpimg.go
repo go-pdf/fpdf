@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/phpdave11/gofpdf"
+	gofpdf "github.com/go-pdf/fpdf"
 )
 
 // httpimgPdf is a partial interface that only implements the functions we need

@@ -9,8 +9,9 @@ however that use of the default Importer is not thread safe.
 package gofpdi
 
 import (
-	realgofpdi "github.com/phpdave11/gofpdi"
 	"io"
+
+	realgofpdi "github.com/phpdave11/gofpdi"
 )
 
 // gofpdiPdf is a partial interface that only implements the functions we need

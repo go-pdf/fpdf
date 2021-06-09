@@ -2,16 +2,17 @@ package gofpdi
 
 import (
 	"bytes"
-	"github.com/phpdave11/gofpdf"
-	"github.com/phpdave11/gofpdf/internal/example"
 	"io"
 	"sync"
 	"testing"
+
+	"github.com/go-pdf/fpdf"
+	"github.com/go-pdf/fpdf/internal/example"
 )
 
 func ExampleNewImporter() {
 	// create new pdf
-	pdf := gofpdf.New("P", "pt", "A4", "")
+	pdf := fpdf.New("P", "pt", "A4", "")
 
 	// for testing purposes, get an arbitrary template pdf as stream
 	rs, _ := getTemplatePdf()
@@ -47,7 +48,7 @@ func TestGofpdiConcurrent(t *testing.T) {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			pdf := gofpdf.New("P", "mm", "A4", "")
+			pdf := fpdf.New("P", "mm", "A4", "")
 			pdf.AddPage()
 			rs, _ := getTemplatePdf()
 			imp := NewImporter()
@@ -64,7 +65,7 @@ func TestGofpdiConcurrent(t *testing.T) {
 }
 
 func getTemplatePdf() (io.ReadSeeker, error) {
-	tpdf := gofpdf.New("P", "pt", "A4", "")
+	tpdf := fpdf.New("P", "pt", "A4", "")
 	tpdf.AddPage()
 	tpdf.SetFont("Arial", "", 12)
 	tpdf.Text(20, 20, "Example Page 1")

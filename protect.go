@@ -17,7 +17,7 @@
 // PDF protection is adapted from the work of Klemen VODOPIVEC for the fpdf
 // product.
 
-package gofpdf
+package fpdf
 
 import (
 	"crypto/md5"

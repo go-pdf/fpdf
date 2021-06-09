@@ -14,18 +14,18 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-package gofpdf_test
+package fpdf_test
 
 import (
 	"bytes"
 	"fmt"
 
-	"github.com/phpdave11/gofpdf"
-	"github.com/phpdave11/gofpdf/internal/example"
+	"github.com/go-pdf/fpdf"
+	"github.com/go-pdf/fpdf/internal/example"
 )
 
 func ExampleTtfParse() {
-	ttf, err := gofpdf.TtfParse(example.FontDir() + "/calligra.ttf")
+	ttf, err := fpdf.TtfParse(example.FontDir() + "/calligra.ttf")
 	if err == nil {
 		fmt.Printf("Postscript name:  %s\n", ttf.PostScriptName)
 		fmt.Printf("unitsPerEm:       %8d\n", ttf.UnitsPerEm)
@@ -56,7 +56,7 @@ func hexStr(s string) string {
 }
 
 func ExampleFpdf_GetStringWidth() {
-	pdf := gofpdf.New("", "", "", example.FontDir())
+	pdf := fpdf.New("", "", "", example.FontDir())
 	pdf.SetFont("Helvetica", "", 12)
 	pdf.AddPage()
 	for _, s := range []string{"Hello", "世界", "\xe7a va?"} {

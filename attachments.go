@@ -1,4 +1,4 @@
-package gofpdf
+package fpdf
 
 import (
 	"crypto/md5"

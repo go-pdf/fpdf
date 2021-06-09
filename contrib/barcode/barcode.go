@@ -34,8 +34,8 @@ import (
 	"github.com/boombuler/barcode/ean"
 	"github.com/boombuler/barcode/qr"
 	"github.com/boombuler/barcode/twooffive"
-	"github.com/phpdave11/gofpdf"
-	"github.com/ruudk/golang-pdf417"
+	"github.com/go-pdf/fpdf"
+	pdf417 "github.com/ruudk/golang-pdf417"
 )
 
 // barcodes represents the barcodes that have been registered through this
@@ -50,9 +50,9 @@ var barcodes struct {
 // functions that are required to add the barcode to the PDF.
 type barcodePdf interface {
 	GetConversionRatio() float64
-	GetImageInfo(imageStr string) *gofpdf.ImageInfoType
+	GetImageInfo(imageStr string) *fpdf.ImageInfoType
 	Image(imageNameStr string, x, y, w, h float64, flow bool, tp string, link int, linkStr string)
-	RegisterImageReader(imgName, tp string, r io.Reader) *gofpdf.ImageInfoType
+	RegisterImageReader(imgName, tp string, r io.Reader) *fpdf.ImageInfoType
 	SetError(err error)
 }
 

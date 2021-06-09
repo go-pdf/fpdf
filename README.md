@@ -1,13 +1,12 @@
 # GoFPDF document generator
 
-[![MIT
-licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/phpdave11/gofpdf/master/LICENSE)
-[![Report](https://goreportcard.com/badge/github.com/phpdave11/gofpdf)](https://goreportcard.com/report/github.com/phpdave11/gofpdf)
-[![GoDoc](https://img.shields.io/badge/godoc-GoFPDF-blue.svg)](https://godoc.org/github.com/phpdave11/gofpdf)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/go-pdf/fpdf/master/LICENSE)
+[![Report](https://goreportcard.com/badge/github.com/go-pdf/fpdf)](https://goreportcard.com/report/github.com/go-pdf/fpdf)
+[![GoDoc](https://img.shields.io/badge/godoc-GoFPDF-blue.svg)](https://godoc.org/github.com/go-pdf/fpdf)
 
-![](https://github.com/phpdave11/gofpdf/raw/master/image/logo_gofpdf.jpg?raw=true)
+![](https://github.com/go-pdf/fpdf/raw/master/image/logo_gofpdf.jpg?raw=true)
 
-Package gofpdf implements a PDF document generator with high level
+Package `go-pdf/fpdf` implements a PDF document generator with high level
 support for text, drawing and images.
 
 ## Features
@@ -50,13 +49,13 @@ page encodings for languages that have fewer than 256 glyphs.
 To install the package on your system, run
 
 ``` shell
-go get github.com/phpdave11/gofpdf
+go get github.com/go-pdf/fpdf
 ```
 
 Later, to receive updates, run
 
 ``` shell
-go get -u -v github.com/phpdave11/gofpdf/...
+go get -u -v github.com/go-pdf/fpdf/...
 ```
 
 ## Quick Start
@@ -64,7 +63,7 @@ go get -u -v github.com/phpdave11/gofpdf/...
 The following Go code generates a simple PDF file.
 
 ``` go
-pdf := gofpdf.New("P", "mm", "A4", "")
+pdf := fpdf.New("P", "mm", "A4", "")
 pdf.AddPage()
 pdf.SetFont("Arial", "B", 16)
 pdf.Cell(40, 10, "Hello, world")
@@ -72,7 +71,7 @@ err := pdf.OutputFileAndClose("hello.pdf")
 ```
 
 See the functions in the
-[fpdf\_test.go](https://github.com/phpdave11/gofpdf/blob/master/fpdf_test.go)
+[fpdf\_test.go](https://github.com/go-pdf/fpdf/blob/master/fpdf_test.go)
 file (shown as examples in this documentation) for more advanced PDF
 examples.
 
@@ -120,14 +119,14 @@ the tests complete.
 
 Please note that these examples run in the context of a test. In order
 run an example as a standalone application, you’ll need to examine
-[fpdf\_test.go](https://github.com/phpdave11/gofpdf/blob/master/fpdf_test.go)
+[fpdf\_test.go](https://github.com/go-pdf/fpdf/blob/master/fpdf_test.go)
 for some helper routines, for example `exampleFilename()` and
 `summary()`.
 
 Example PDFs can be compared with reference copies in order to verify
 that they have been generated as expected. This comparison will be
 performed if a PDF with the same name as the example PDF is placed in
-the gofpdf/pdf/reference directory and if the third argument to
+the fpdf/pdf/reference directory and if the third argument to
 `ComparePDFFiles()` in internal/example/example.go is true. (By default
 it is false.) The routine that summarizes an example will look for this
 file and, if found, will call `ComparePDFFiles()` to check the example
@@ -174,14 +173,14 @@ Fonts](http://dejavu-fonts.org/).
 
 The [draw2d](https://github.com/llgcode/draw2d) package is a two
 dimensional vector graphics library that can generate output in
-different forms. It uses gofpdf for its document production mode.
+different forms. It uses `go-pdf/fpdf` for its document production mode.
 
 ## Contributing Changes
 
-gofpdf is a global community effort and you are invited to make it even
+`go-pdf/fpdf` is a global community effort and you are invited to make it even
 better. If you have implemented a new feature or corrected a problem,
 please consider contributing your change to the project. A contribution
-that does not directly pertain to the core functionality of gofpdf
+that does not directly pertain to the core functionality of `go-pdf/fpdf`
 should be placed in its own directory directly beneath the `contrib`
 directory.
 
@@ -191,7 +190,7 @@ Here are guidelines for making submissions. Your change should
   - be properly documented
   - be formatted with `go fmt`
   - include an example in
-    [fpdf\_test.go](https://github.com/phpdave11/gofpdf/blob/master/fpdf_test.go)
+    [fpdf\_test.go](https://github.com/go-pdf/fpdf/blob/master/fpdf_test.go)
     if appropriate
   - conform to the standards of [golint](https://github.com/golang/lint)
     and [go vet](https://golang.org/cmd/vet/), that is, `golint .` and
@@ -203,7 +202,7 @@ are the preferred means of accepting your changes.
 
 ## License
 
-gofpdf is released under the MIT License. It is copyrighted by Dave Barnes
+`go-pdf/fpdf` is released under the MIT License. It is copyrighted by Dave Barnes
 and the contributors acknowledged below.
 
 ## Acknowledgments

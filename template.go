@@ -1,4 +1,4 @@
-package gofpdf
+package fpdf
 
 /*
  * Copyright (c) 2015 Kurt Jung (Gmail: kurt.w.jung),

@@ -26,7 +26,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/phpdave11/gofpdf"
+	"github.com/go-pdf/fpdf"
 	"golang.org/x/image/tiff"
 )
 
@@ -36,25 +36,25 @@ import (
 // specifies various image properties; in this case, the ImageType property
 // should be set to "tiff". The TIFF image is a reader from the reader
 // specified by r.
-func RegisterReader(fpdf *gofpdf.Fpdf, imgName string, options gofpdf.ImageOptions, r io.Reader) (info *gofpdf.ImageInfoType) {
+func RegisterReader(pdf *fpdf.Fpdf, imgName string, options fpdf.ImageOptions, r io.Reader) (info *fpdf.ImageInfoType) {
 	var err error
 	var img image.Image
 	var buf bytes.Buffer
-	if fpdf.Ok() {
+	if pdf.Ok() {
 		if options.ImageType == "tiff" || options.ImageType == "tif" {
 			img, err = tiff.Decode(r)
 			if err == nil {
 				err = png.Encode(&buf, img)
 				if err == nil {
 					options.ImageType = "png"
-					info = fpdf.RegisterImageOptionsReader(imgName, options, &buf)
+					info = pdf.RegisterImageOptionsReader(imgName, options, &buf)
 				}
 			}
 		} else {
 			err = fmt.Errorf("expecting \"tiff\" or \"tif\" as image type, got \"%s\"", options.ImageType)
 		}
 		if err != nil {
-			fpdf.SetError(err)
+			pdf.SetError(err)
 		}
 	}
 	return
@@ -66,17 +66,17 @@ func RegisterReader(fpdf *gofpdf.Fpdf, imgName string, options gofpdf.ImageOptio
 // specifies various image properties; in this case, the ImageType property
 // should be set to "tiff". The TIFF image is read from the file specified by
 // tiffFileStr.
-func RegisterFile(fpdf *gofpdf.Fpdf, imgName string, options gofpdf.ImageOptions, tiffFileStr string) (info *gofpdf.ImageInfoType) {
+func RegisterFile(pdf *fpdf.Fpdf, imgName string, options fpdf.ImageOptions, tiffFileStr string) (info *fpdf.ImageInfoType) {
 	var f *os.File
 	var err error
 
-	if fpdf.Ok() {
+	if pdf.Ok() {
 		f, err = os.Open(tiffFileStr)
 		if err == nil {
-			info = RegisterReader(fpdf, imgName, options, f)
+			info = RegisterReader(pdf, imgName, options, f)
 			f.Close()
 		} else {
-			fpdf.SetError(err)
+			pdf.SetError(err)
 		}
 	}
 	return

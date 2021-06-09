@@ -5,13 +5,13 @@ import (
 
 	"github.com/boombuler/barcode/code128"
 	"github.com/boombuler/barcode/qr"
-	"github.com/phpdave11/gofpdf"
-	"github.com/phpdave11/gofpdf/contrib/barcode"
-	"github.com/phpdave11/gofpdf/internal/example"
+	"github.com/go-pdf/fpdf"
+	"github.com/go-pdf/fpdf/contrib/barcode"
+	"github.com/go-pdf/fpdf/internal/example"
 )
 
-func createPdf() (pdf *gofpdf.Fpdf) {
-	pdf = gofpdf.New("L", "mm", "A4", "")
+func createPdf() (pdf *fpdf.Fpdf) {
+	pdf = fpdf.New("L", "mm", "A4", "")
 	pdf.SetFont("Helvetica", "", 12)
 	pdf.SetFillColor(200, 200, 220)
 	pdf.AddPage()
@@ -202,7 +202,7 @@ func TestGetUnscaledBarcodeDimensions(t *testing.T) {
 
 // TestBarcodeNonIntegerScalingFactors shows that the barcode may be scaled to non-integer sizes
 func TestBarcodeNonIntegerScalingFactors(t *testing.T) {
-	pdf := gofpdf.New("L", "in", "A4", "")
+	pdf := fpdf.New("L", "in", "A4", "")
 	pdf.SetFont("Helvetica", "", 12)
 	pdf.SetFillColor(200, 200, 220)
 	pdf.AddPage()
