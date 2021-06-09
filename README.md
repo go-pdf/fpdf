@@ -1,5 +1,7 @@
 # GoFPDF document generator
 
+[![GitHub release](https://img.shields.io/github/release/go-pdf/fpdf.svg)](https://github.com/go-pdf/fpdf/releases)
+[![CI](https://github.com/go-pdf/fpdf/workflows/CI/badge.svg)](https://github.com/go-pdf/fpdf/actions)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/go-pdf/fpdf/master/LICENSE)
 [![Report](https://goreportcard.com/badge/github.com/go-pdf/fpdf)](https://goreportcard.com/report/github.com/go-pdf/fpdf)
 [![GoDoc](https://img.shields.io/badge/godoc-GoFPDF-blue.svg)](https://godoc.org/github.com/go-pdf/fpdf)

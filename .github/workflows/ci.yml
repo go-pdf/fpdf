@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * 1-5'
+
+env:
+  GOPROXY: "https://proxy.golang.org"
+  TAGS: "-tags=ci"
+  COVERAGE: "-coverpkg=github.com/go-pdf/fpdf/..."
+
+jobs:
+
+  build:
+    name: Build
+    strategy:
+      matrix:
+        go-version: [1.16.x, 1.15.x]
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.platform }}
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+ 
+    - name: Cache-Go
+      uses: actions/cache@v1
+      with:
+        path: |
+            ~/go/pkg/mod              # Module download cache
+            ~/.cache/go-build         # Build cache (Linux)
+            ~/Library/Caches/go-build # Build cache (Mac)
+            '%LocalAppData%\go-build' # Build cache (Windows)
+
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+ 
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Build-Linux-32b
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        GOARCH=386   go install -v $TAGS ./...
+    - name: Build-Linux-64b
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        GOARCH=amd64 go install -v $TAGS ./...       
+    - name: Build-Windows
+      if: matrix.platform == 'windows-latest'
+      run: |
+        go install -v $TAGS ./...
+    - name: Build-Darwin
+      if: matrix.platform == 'macos-latest'
+      run: |
+        go install -v $TAGS ./...
+    - name: Test Linux
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        go run ./ci/run-tests.go $TAGS -race $COVERAGE
+    - name: Test Windows
+      if: matrix.platform == 'windows-latest'
+      run: |
+        go test $TAGS ./...
+    - name: Test Darwin
+      if: matrix.platform == 'macos-latest'
+      run: |
+        go run ./ci/run-tests.go $TAGS
+    - name: Upload-Coverage
+      if: matrix.platform == 'ubuntu-latest'
+      uses: codecov/codecov-action@v1
