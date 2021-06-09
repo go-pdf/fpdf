@@ -3,8 +3,8 @@ module github.com/go-pdf/fpdf
 go 1.14
 
 require (
-	github.com/boombuler/barcode v1.0.0
+	github.com/boombuler/barcode v1.0.1
 	github.com/phpdave11/gofpdi v1.0.13
-	github.com/ruudk/golang-pdf417 v0.0.0-20181029194003-1af4ab5afa58
-	golang.org/x/image v0.0.0-20190910094157-69e4b8554b2a
+	github.com/ruudk/golang-pdf417 v0.0.0-20201230142125-a7e3863a1245
+	golang.org/x/image v0.0.0-20210607152325-775e3b0c77b9
 )

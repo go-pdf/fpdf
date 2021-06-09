@@ -1,5 +1,5 @@
 /*
-Package go-pdf/fpdf implements a PDF document generator with high level
+Package fpdf implements a PDF document generator with high level
 support for text, drawing and images.
 
 
@@ -270,4 +270,4 @@ Roadmap
 
 -   Improve test coverage as reported by the coverage tool.
 */
-package fpdf
+package fpdf // import "github.com/go-pdf/fpdf"
