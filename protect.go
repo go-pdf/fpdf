@@ -56,7 +56,7 @@ func (p *protectType) rc4(n uint32, buf *[]byte) {
 
 func (p *protectType) objectKey(n uint32) []byte {
 	var nbuf, b []byte
-	nbuf = make([]byte, 8, 8)
+	nbuf = make([]byte, 8)
 	binary.LittleEndian.PutUint32(nbuf, n)
 	b = append(b, p.encryptionKey...)
 	b = append(b, nbuf[0], nbuf[1], nbuf[2], 0, 0)
@@ -69,7 +69,7 @@ func oValueGen(userPass, ownerPass []byte) (v []byte) {
 	tmp := md5.Sum(ownerPass)
 	c, _ = rc4.NewCipher(tmp[0:5])
 	size := len(userPass)
-	v = make([]byte, size, size)
+	v = make([]byte, size)
 	c.XORKeyStream(v, userPass)
 	return
 }
@@ -78,7 +78,7 @@ func (p *protectType) uValueGen() (v []byte) {
 	var c *rc4.Cipher
 	c, _ = rc4.NewCipher(p.encryptionKey)
 	size := len(p.padding)
-	v = make([]byte, size, size)
+	v = make([]byte, size)
 	c.XORKeyStream(v, p.padding)
 	return
 }
@@ -94,7 +94,7 @@ func (p *protectType) setProtection(privFlag byte, userPassStr, ownerPassStr str
 	userPass := []byte(userPassStr)
 	var ownerPass []byte
 	if ownerPassStr == "" {
-		ownerPass = make([]byte, 8, 8)
+		ownerPass = make([]byte, 8)
 		binary.LittleEndian.PutUint64(ownerPass, uint64(rand.Int63()))
 	} else {
 		ownerPass = []byte(ownerPassStr)

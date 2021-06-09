@@ -109,7 +109,7 @@ func (utf *utf8FontFile) parseFile() error {
 		return fmt.Errorf("not supported\n ")
 	}
 	if codeType != 0x00010000 && codeType != 0x74727565 {
-		return fmt.Errorf("Not a TrueType font: codeType=%v\n ", codeType)
+		return fmt.Errorf("not a TrueType font: codeType=%v\n ", codeType)
 	}
 	utf.generateTableDescriptions()
 	utf.parseTables()
@@ -457,8 +457,8 @@ func (utf *utf8FontFile) parseCMAPTable(format int) int {
 		position := utf.readUint32()
 		oldReaderPosition := utf.fileReader.readerPosition
 		if (system == 3 && coded == 1) || system == 0 { // Microsoft, Unicode
-			format = utf.getUint16(cmapPosition + position)
-			if format == 4 {
+			v := utf.getUint16(cmapPosition + position)
+			if v == 4 {
 				if cidCMAPPosition == 0 {
 					cidCMAPPosition = cmapPosition + position
 				}
@@ -608,9 +608,7 @@ func (utf *utf8FontFile) generateCMAPTable(cidSymbolPairCollection map[int]int, 
 	cmap = append(cmap, 0xFFFF)
 	cmap = append(cmap, 0)
 
-	for _, cidKey := range cidArrayKeys {
-		cmap = append(cmap, cidKey)
-	}
+	cmap = append(cmap, cidArrayKeys...)
 	cmap = append(cmap, 0xFFFF)
 	for _, cidKey := range cidArrayKeys {
 		idDelta := -(cidKey - cidArray[cidKey][0])
@@ -623,9 +621,7 @@ func (utf *utf8FontFile) generateCMAPTable(cidSymbolPairCollection map[int]int, 
 	}
 	cmap = append(cmap, 0)
 	for _, start := range cidArrayKeys {
-		for _, glidx := range cidArray[start] {
-			cmap = append(cmap, glidx)
-		}
+		cmap = append(cmap, cidArray[start]...)
 	}
 	cmap = append(cmap, 0)
 	cmapstr := make([]byte, 0)
@@ -695,7 +691,7 @@ func (utf *utf8FontFile) GenerateCutFont(usedRunes map[int]int) []byte {
 	glyfData := make([]byte, 0)
 	pos := 0
 	hmtxData := make([]byte, 0)
-	utf.symbolData = make(map[int]map[string][]int, 0)
+	utf.symbolData = make(map[int]map[string][]int)
 
 	for _, originalSymbolIdx := range symbolCollectionKeys {
 		hm := utf.getMetrics(oldMetrics, originalSymbolIdx)

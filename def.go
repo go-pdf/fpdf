@@ -121,7 +121,6 @@ type colorMode int
 const (
 	colorModeRGB colorMode = iota
 	colorModeSpot
-	colorModeCMYK
 )
 
 type colorType struct {
@@ -139,7 +138,7 @@ type spotColorType struct {
 	val       cmykColorType
 }
 
-// CMYKColorType specifies an ink-based CMYK color value
+// cmykColorType specifies an ink-based CMYK color value
 type cmykColorType struct {
 	c, m, y, k byte // 0% to 100%
 }

@@ -67,10 +67,8 @@ func HTMLBasicTokenize(htmlStr string) (list []HTMLBasicSegmentType) {
 							seg.Attr = make(map[string]string)
 						} else {
 							attrList := attrRe.FindAllStringSubmatch(part, -1)
-							if attrList != nil {
-								for _, attr := range attrList {
-									seg.Attr[strings.ToLower(attr[1])] = attr[2]
-								}
+							for _, attr := range attrList {
+								seg.Attr[strings.ToLower(attr[1])] = attr[2]
 							}
 						}
 					}

@@ -5,9 +5,6 @@ import (
 	"strconv"
 )
 
-func unused(args ...interface{}) {
-}
-
 // RGBType holds fields for red, green and blue color components (0..255)
 type RGBType struct {
 	R, G, B int

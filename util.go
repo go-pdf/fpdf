@@ -28,6 +28,18 @@ import (
 	"strings"
 )
 
+func must(n int, err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
+func must64(n int64, err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 func round(f float64) int {
 	if f < 0 {
 		return -int(math.Floor(-f + 0.5))
@@ -68,33 +80,38 @@ func bufferFromReader(r io.Reader) (b *bytes.Buffer, err error) {
 	return
 }
 
-// slicesEqual returns true if the two specified float slices are equal
-func slicesEqual(a, b []float64) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i := range a {
-		if a[i] != b[i] {
-			return false
-		}
-	}
-	return true
-}
-
 // sliceCompress returns a zlib-compressed copy of the specified byte array
 func sliceCompress(data []byte) []byte {
 	var buf bytes.Buffer
-	cmp, _ := zlib.NewWriterLevel(&buf, zlib.BestSpeed)
-	cmp.Write(data)
-	cmp.Close()
-	return buf.Bytes()
+	buf.Grow(len(data))
+	cmp, err := zlib.NewWriterLevel(&buf, zlib.BestSpeed)
+	if err != nil {
+		panic(fmt.Errorf("could not create zlib writer: %w", err))
+	}
+	_, err = cmp.Write(data)
+	if err != nil {
+		panic(fmt.Errorf("could not zlib-compress slice: %w", err))
+	}
+
+	err = cmp.Close()
+	if err != nil {
+		panic(fmt.Errorf("could not close zlib writer: %w", err))
+	}
+
+	raw := buf.Bytes()
+	return raw[:len(raw):len(raw)]
 }
 
 // sliceUncompress returns an uncompressed copy of the specified zlib-compressed byte array
 func sliceUncompress(data []byte) (outData []byte, err error) {
 	inBuf := bytes.NewReader(data)
 	r, err := zlib.NewReader(inBuf)
-	defer r.Close()
+	defer func() {
+		e1 := r.Close()
+		if e1 != nil && err == nil {
+			err = e1
+		}
+	}()
 	if err == nil {
 		var outBuf bytes.Buffer
 		_, err = outBuf.ReadFrom(r)

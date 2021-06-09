@@ -86,13 +86,13 @@ func fpdfNew(orientationStr, unitStr, sizeStr, fontDirStr string, size SizeType)
 	f.diffs = make([]string, 0, 8)
 	f.templates = make(map[string]Template)
 	f.templateObjects = make(map[string]int)
-	f.importedObjs = make(map[string][]byte, 0)
-	f.importedObjPos = make(map[string]map[int]string, 0)
+	f.importedObjs = make(map[string][]byte)
+	f.importedObjPos = make(map[string]map[int]string)
 	f.importedTplObjs = make(map[string]string)
-	f.importedTplIDs = make(map[string]int, 0)
+	f.importedTplIDs = make(map[string]int)
 	f.images = make(map[string]*ImageInfoType)
 	f.pageLinks = make([][]linkType, 0, 8)
-	f.pageLinks = append(f.pageLinks, make([]linkType, 0, 0)) // pageLinks[0] is unused (1-based)
+	f.pageLinks = append(f.pageLinks, make([]linkType, 0)) // pageLinks[0] is unused (1-based)
 	f.links = make([]intLinkType, 0, 8)
 	f.links = append(f.links, intLinkType{}) // links[0] is unused (1-based)
 	f.pageAttachments = make([][]annotationAttach, 0, 8)
@@ -690,7 +690,6 @@ func (f *Fpdf) Close() {
 	f.endpage()
 	// Close document
 	f.enddoc()
-	return
 }
 
 // PageSize returns the width and height of the specified page in the units
@@ -818,7 +817,6 @@ func (f *Fpdf) AddPageFormat(orientationStr string, size SizeType) {
 	}
 	f.color.text = tc
 	f.colorFlag = cf
-	return
 }
 
 // AddPage adds a new page to the document. If a page is already present, the
@@ -841,7 +839,6 @@ func (f *Fpdf) AddPage() {
 	}
 	// dbg("AddPage")
 	f.AddPageFormat(f.defOrientation, f.defPageSize)
-	return
 }
 
 // PageNo returns the current page number.
@@ -960,8 +957,7 @@ func (f *Fpdf) GetStringSymbolWidth(s string) int {
 	}
 	w := 0
 	if f.isCurrentUTF8 {
-		unicode := []rune(s)
-		for _, char := range unicode {
+		for _, char := range s {
 			intChar := int(char)
 			if len(f.currentFont.Cw) >= intChar && f.currentFont.Cw[intChar] > 0 {
 				if f.currentFont.Cw[intChar] != 65535 {
@@ -1956,8 +1952,7 @@ func (f *Fpdf) AddFontFromReader(familyStr, styleStr string, r io.Reader) {
 	if ok {
 		return
 	}
-	var info fontDefType
-	info = f.loadfont(r)
+	info := f.loadfont(r)
 	if f.err != nil {
 		return
 	}
@@ -1986,7 +1981,6 @@ func (f *Fpdf) AddFontFromReader(familyStr, styleStr string, r io.Reader) {
 		}
 	}
 	f.fonts[fontkey] = info
-	return
 }
 
 // GetFontDesc returns the font descriptor, which can be used for
@@ -2104,7 +2098,6 @@ func (f *Fpdf) SetFont(familyStr, styleStr string, size float64) {
 	if f.page > 0 {
 		f.outf("BT /F%s %.2f Tf ET", f.currentFont.i, f.fontSizePt)
 	}
-	return
 }
 
 // SetFontStyle sets the style of the current font. See also SetFont()
@@ -2213,7 +2206,7 @@ func (f *Fpdf) Text(x, y float64, txtStr string) {
 			x -= f.GetStringWidth(txtStr)
 		}
 		txt2 = f.escape(utf8toutf16(txtStr, false))
-		for _, uni := range []rune(txtStr) {
+		for _, uni := range txtStr {
 			f.currentFont.usedRunes[int(uni)] = int(uni)
 		}
 	} else {
@@ -2424,7 +2417,7 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 				txtStr = reverseText(txtStr)
 			}
 			wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
-			for _, uni := range []rune(txtStr) {
+			for _, uni := range txtStr {
 				f.currentFont.usedRunes[int(uni)] = int(uni)
 			}
 			space := f.escape(utf8toutf16(" ", false))
@@ -2449,7 +2442,7 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 					txtStr = reverseText(txtStr)
 				}
 				txt2 = f.escape(utf8toutf16(txtStr, false))
-				for _, uni := range []rune(txtStr) {
+				for _, uni := range txtStr {
 					f.currentFont.usedRunes[int(uni)] = int(uni)
 				}
 			} else {
@@ -2491,7 +2484,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 	} else {
 		f.x += w
 	}
-	return
 }
 
 // Revert string to use in RTL languages
@@ -3118,7 +3110,6 @@ func (f *Fpdf) ImageOptions(imageNameStr string, x, y, w, h float64, flow bool, 
 		return
 	}
 	f.imageOut(info, x, y, w, h, options.AllowNegativePosition, flow, link, linkStr)
-	return
 }
 
 // RegisterImageReader registers an image, reading it from Reader r, adding it
@@ -3433,8 +3424,11 @@ func (f *Fpdf) SetProtection(actionFlag byte, userPassStr, ownerPassStr string) 
 // method will close both f and w, even if an error is detected and no document
 // is produced.
 func (f *Fpdf) OutputAndClose(w io.WriteCloser) error {
-	f.Output(w)
-	w.Close()
+	_ = f.Output(w)
+	err := w.Close()
+	if err != nil {
+		return fmt.Errorf("could not close writer: %w", err)
+	}
 	return f.err
 }
 
@@ -3444,15 +3438,23 @@ func (f *Fpdf) OutputAndClose(w io.WriteCloser) error {
 //
 // Most examples demonstrate the use of this method.
 func (f *Fpdf) OutputFileAndClose(fileStr string) error {
-	if f.err == nil {
-		pdfFile, err := os.Create(fileStr)
-		if err == nil {
-			f.Output(pdfFile)
-			pdfFile.Close()
-		} else {
-			f.err = err
-		}
+	if f.err != nil {
+		return f.err
 	}
+
+	pdfFile, err := os.Create(fileStr)
+	if err != nil {
+		f.err = err
+		return f.err
+	}
+
+	_ = f.Output(pdfFile)
+
+	err = pdfFile.Close()
+	if err != nil {
+		return fmt.Errorf("could not close output file: %w", err)
+	}
+
 	return f.err
 }
 
@@ -3499,13 +3501,6 @@ func (f *Fpdf) GetPageSizeStr(sizeStr string) (size SizeType) {
 	return f.getpagesizestr(sizeStr)
 }
 
-func (f *Fpdf) _getpagesize(size SizeType) SizeType {
-	if size.Wd > size.Ht {
-		size.Wd, size.Ht = size.Ht, size.Wd
-	}
-	return size
-}
-
 func (f *Fpdf) beginpage(orientationStr string, size SizeType) {
 	if f.err != nil {
 		return
@@ -3517,7 +3512,7 @@ func (f *Fpdf) beginpage(orientationStr string, size SizeType) {
 		f.pageBoxes[f.page][box] = pb
 	}
 	f.pages = append(f.pages, bytes.NewBufferString(""))
-	f.pageLinks = append(f.pageLinks, make([]linkType, 0, 0))
+	f.pageLinks = append(f.pageLinks, make([]linkType, 0))
 	f.pageAttachments = append(f.pageAttachments, []annotationAttach{})
 	f.state = 2
 	f.x = f.lMargin
@@ -3547,7 +3542,6 @@ func (f *Fpdf) beginpage(orientationStr string, size SizeType) {
 	if orientationStr != f.defOrientation || size.Wd != f.defPageSize.Wd || size.Ht != f.defPageSize.Ht {
 		f.pageSizes[f.page] = SizeType{f.wPt, f.hPt}
 	}
-	return
 }
 
 func (f *Fpdf) endpage() {
@@ -3630,14 +3624,6 @@ func (f *Fpdf) dostrikeout(x, y float64, txt string) string {
 	w := f.GetStringWidth(txt) + f.ws*float64(blankCount(txt))
 	return sprintf("%.2f %.2f %.2f %.2f re f", x*f.k,
 		(f.h-(y+4*up/1000*f.fontSize))*f.k, w*f.k, -ut/1000*f.fontSizePt)
-}
-
-func bufEqual(buf []byte, str string) bool {
-	return string(buf[0:len(str)]) == str
-}
-
-func be16(buf []byte) int {
-	return 256*int(buf[0]) + int(buf[1])
 }
 
 func (f *Fpdf) newImageInfo() *ImageInfoType {
@@ -3755,22 +3741,22 @@ func (f *Fpdf) putstream(b []byte) {
 // out; Add a line to the document
 func (f *Fpdf) out(s string) {
 	if f.state == 2 {
-		f.pages[f.page].WriteString(s)
-		f.pages[f.page].WriteString("\n")
+		must(f.pages[f.page].WriteString(s))
+		must(f.pages[f.page].WriteString("\n"))
 	} else {
-		f.buffer.WriteString(s)
-		f.buffer.WriteString("\n")
+		must(f.buffer.WriteString(s))
+		must(f.buffer.WriteString("\n"))
 	}
 }
 
 // outbuf adds a buffered line to the document
 func (f *Fpdf) outbuf(r io.Reader) {
 	if f.state == 2 {
-		f.pages[f.page].ReadFrom(r)
-		f.pages[f.page].WriteString("\n")
+		must64(f.pages[f.page].ReadFrom(r))
+		must(f.pages[f.page].WriteString("\n"))
 	} else {
-		f.buffer.ReadFrom(r)
-		f.buffer.WriteString("\n")
+		must64(f.buffer.ReadFrom(r))
+		must(f.buffer.WriteString("\n"))
 	}
 }
 
@@ -4121,7 +4107,7 @@ func (f *Fpdf) putfonts() {
 				f.out("<</Type /Font\n/Subtype /CIDFontType2\n/BaseFont /" + fontName + "\n" +
 					"/CIDSystemInfo " + strconv.Itoa(f.n+2) + " 0 R\n/FontDescriptor " + strconv.Itoa(f.n+3) + " 0 R")
 				if font.Desc.MissingWidth != 0 {
-					f.out("/DW " + strconv.Itoa(font.Desc.MissingWidth) + "")
+					f.out("/DW " + strconv.Itoa(font.Desc.MissingWidth))
 				}
 				f.generateCIDFontMap(&font, font.utf8File.LastRune)
 				f.out("/CIDToGIDMap " + strconv.Itoa(f.n+4) + " 0 R>>")
@@ -4185,7 +4171,6 @@ func (f *Fpdf) putfonts() {
 			}
 		}
 	}
-	return
 }
 
 func (f *Fpdf) generateCIDFontMap(font *fontDefType, LastRune int) {
@@ -4611,7 +4596,6 @@ func (f *Fpdf) putresources() {
 		f.out(">>")
 		f.out("endobj")
 	}
-	return
 }
 
 // returns Now() if tm is zero
@@ -4822,7 +4806,6 @@ func (f *Fpdf) enddoc() {
 	f.outf("%d", o)
 	f.out("%%EOF")
 	f.state = 3
-	return
 }
 
 // Path Drawing

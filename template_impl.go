@@ -82,11 +82,11 @@ func (t *FpdfTpl) Bytes() []byte {
 func (t *FpdfTpl) FromPage(page int) (Template, error) {
 	// pages start at 1
 	if page == 0 {
-		return nil, errors.New("Pages start at 1 No template will have a page 0")
+		return nil, errors.New("fpdf: pages start at 1 No template will have a page 0")
 	}
 
 	if page > t.NumPages() {
-		return nil, fmt.Errorf("The template does not have a page %d", page)
+		return nil, fmt.Errorf("fpdf: the template does not have a page %d", page)
 	}
 	// if it is already pointing to the correct page
 	// there is no need to create a new template

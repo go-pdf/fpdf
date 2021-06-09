@@ -115,7 +115,7 @@ func (f *Fpdf) SetTextSpotColor(nameStr string, tint byte) {
 		f.color.text.mode = colorModeSpot
 		f.color.text.spotStr = nameStr
 		f.color.text.str = sprintf("/CS%d cs %.3f scn", clr.id, float64(byteBound(tint))/100)
-		f.colorFlag = f.color.text.str != f.color.text.str
+		f.colorFlag = f.color.fill.str != f.color.text.str
 	}
 }
 

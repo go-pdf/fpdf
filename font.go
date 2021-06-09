@@ -372,12 +372,13 @@ func makeDefinitionFile(fileStr, tpStr, encodingFileStr string, embed bool, encL
 	if err != nil {
 		return err
 	}
+
 	err = f.Close()
 	if err != nil {
 		return err
 	}
 
-	return err
+	return nil
 }
 
 // MakeFont generates a font definition file in JSON format. A definition file

@@ -26,23 +26,6 @@ func showHelp() {
 	errPrintf("\nExample: %s --embed --enc=../font/cp1252.map --dst=../font calligra.ttf /opt/font/symbol.pfb\n", os.Args[0])
 }
 
-func tutorialSummary(f *fpdf.Fpdf, fileStr string) {
-	if f.Ok() {
-		fl, err := os.Create(fileStr)
-		defer fl.Close()
-		if err == nil {
-			f.Output(fl)
-		} else {
-			f.SetError(err)
-		}
-	}
-	if f.Ok() {
-		fmt.Printf("Successfully generated %s\n", fileStr)
-	} else {
-		errPrintf("%s\n", f.Error())
-	}
-}
-
 func main() {
 	var dstDirStr, encodingFileStr string
 	var err error

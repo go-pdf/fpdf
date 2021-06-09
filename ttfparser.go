@@ -25,6 +25,7 @@ package fpdf
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -203,7 +204,11 @@ func (t *ttfParser) ParseCmap() (err error) {
 	idDelta := make([]int16, 0, 8)
 	idRangeOffset := make([]uint16, 0, 8)
 	t.rec.Chars = make(map[uint16]uint16)
-	t.f.Seek(int64(t.tables["cmap"])+offset31, os.SEEK_SET)
+	_, err = t.f.Seek(int64(t.tables["cmap"])+offset31, io.SeekStart)
+	if err != nil {
+		err = fmt.Errorf("could not seek to cmap table: %w", err)
+		return
+	}
 	format := t.ReadUShort()
 	if format != 4 {
 		err = fmt.Errorf("unexpected subtable format: %d", format)
@@ -222,7 +227,7 @@ func (t *ttfParser) ParseCmap() (err error) {
 	for j := 0; j < segCount; j++ {
 		idDelta = append(idDelta, t.ReadShort())
 	}
-	offset, _ = t.f.Seek(int64(0), os.SEEK_CUR)
+	offset, _ = t.f.Seek(int64(0), io.SeekCurrent)
 	for j := 0; j < segCount; j++ {
 		idRangeOffset = append(idRangeOffset, t.ReadUShort())
 	}
@@ -232,7 +237,10 @@ func (t *ttfParser) ParseCmap() (err error) {
 		d := idDelta[j]
 		ro := idRangeOffset[j]
 		if ro > 0 {
-			t.f.Seek(offset+2*int64(j)+int64(ro), os.SEEK_SET)
+			_, err = t.f.Seek(offset+2*int64(j)+int64(ro), io.SeekStart)
+			if err != nil {
+				return fmt.Errorf("could not seek to id range offset: %w", err)
+			}
 		}
 		for c := c1; c <= c2; c++ {
 			if c == 0xFFFF {
@@ -261,7 +269,7 @@ func (t *ttfParser) ParseCmap() (err error) {
 func (t *ttfParser) ParseName() (err error) {
 	err = t.Seek("name")
 	if err == nil {
-		tableOffset, _ := t.f.Seek(0, os.SEEK_CUR)
+		tableOffset, _ := t.f.Seek(0, io.SeekCurrent)
 		t.rec.PostScriptName = ""
 		t.Skip(2) // format
 		count := t.ReadUShort()
@@ -273,7 +281,10 @@ func (t *ttfParser) ParseName() (err error) {
 			offset := t.ReadUShort()
 			if nameID == 6 {
 				// PostScript name
-				t.f.Seek(int64(tableOffset)+int64(stringOffset)+int64(offset), os.SEEK_SET)
+				_, err = t.f.Seek(int64(tableOffset)+int64(stringOffset)+int64(offset), io.SeekStart)
+				if err != nil {
+					return
+				}
 				var s string
 				s, err = t.ReadStr(int(length))
 				if err != nil {
@@ -281,7 +292,7 @@ func (t *ttfParser) ParseName() (err error) {
 				}
 				s = strings.Replace(s, "\x00", "", -1)
 				var re *regexp.Regexp
-				if re, err = regexp.Compile("[(){}<> /%[\\]]"); err != nil {
+				if re, err = regexp.Compile(`[(){}<> /%[\]]`); err != nil {
 					return
 				}
 				t.rec.PostScriptName = re.ReplaceAllString(s, "")
@@ -332,16 +343,22 @@ func (t *ttfParser) ParsePost() (err error) {
 
 func (t *ttfParser) Seek(tag string) (err error) {
 	ofs, ok := t.tables[tag]
-	if ok {
-		t.f.Seek(int64(ofs), os.SEEK_SET)
-	} else {
-		err = fmt.Errorf("table not found: %s", tag)
+	if !ok {
+		return fmt.Errorf("table not found: %s", tag)
+	}
+
+	_, err = t.f.Seek(int64(ofs), io.SeekStart)
+	if err != nil {
+		return fmt.Errorf("could not seek to table %q: %w", tag, err)
 	}
 	return
 }
 
 func (t *ttfParser) Skip(n int) {
-	t.f.Seek(int64(n), os.SEEK_CUR)
+	_, err := t.f.Seek(int64(n), io.SeekCurrent)
+	if err != nil {
+		panic(fmt.Errorf("could not skip %d bytes: %w", n, err))
+	}
 }
 
 func (t *ttfParser) ReadStr(length int) (str string, err error) {
@@ -359,16 +376,25 @@ func (t *ttfParser) ReadStr(length int) (str string, err error) {
 }
 
 func (t *ttfParser) ReadUShort() (val uint16) {
-	binary.Read(t.f, binary.BigEndian, &val)
+	err := binary.Read(t.f, binary.BigEndian, &val)
+	if err != nil {
+		panic(fmt.Errorf("could not read u16: %w", err))
+	}
 	return
 }
 
 func (t *ttfParser) ReadShort() (val int16) {
-	binary.Read(t.f, binary.BigEndian, &val)
+	err := binary.Read(t.f, binary.BigEndian, &val)
+	if err != nil {
+		panic(fmt.Errorf("could not read i16: %w", err))
+	}
 	return
 }
 
 func (t *ttfParser) ReadULong() (val uint32) {
-	binary.Read(t.f, binary.BigEndian, &val)
+	err := binary.Read(t.f, binary.BigEndian, &val)
+	if err != nil {
+		panic(fmt.Errorf("could not read u32: %w", err))
+	}
 	return
 }

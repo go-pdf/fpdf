@@ -42,11 +42,12 @@ func init() {
 }
 
 func cleanup() {
-	filepath.Walk(example.PdfDir(),
+	_ = filepath.Walk(
+		example.PdfDir(),
 		func(path string, info os.FileInfo, err error) (reterr error) {
 			if info.Mode().IsRegular() {
 				dir, _ := filepath.Split(path)
-				if "reference" != filepath.Base(dir) {
+				if filepath.Base(dir) != "reference" {
 					if len(path) > 3 {
 						if path[len(path)-4:] == ".pdf" {
 							os.Remove(path)
@@ -55,7 +56,8 @@ func cleanup() {
 				}
 			}
 			return
-		})
+		},
+	)
 }
 
 func TestFpdfImplementPdf(t *testing.T) {
@@ -104,9 +106,7 @@ func TestPagedTemplate(t *testing.T) {
 // TestIssue0116 addresses issue 116 in which library silently fails after
 // calling CellFormat when no font has been set.
 func TestIssue0116(t *testing.T) {
-	var pdf *fpdf.Fpdf
-
-	pdf = fpdf.New("P", "mm", "A4", "")
+	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "B", 16)
 	pdf.Cell(40, 10, "OK")
@@ -147,9 +147,7 @@ func TestIssue0193(t *testing.T) {
 // TestIssue0209SplitLinesEqualMultiCell addresses issue 209
 // make SplitLines and MultiCell split at the same place
 func TestIssue0209SplitLinesEqualMultiCell(t *testing.T) {
-	var pdf *fpdf.Fpdf
-
-	pdf = fpdf.New("P", "mm", "A4", "")
+	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 	pdf.SetFont("Arial", "", 8)
 	// this sentence should not be splited
