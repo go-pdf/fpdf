@@ -6,7 +6,7 @@
 [![Report](https://goreportcard.com/badge/github.com/go-pdf/fpdf)](https://goreportcard.com/report/github.com/go-pdf/fpdf)
 [![GoDoc](https://img.shields.io/badge/godoc-GoFPDF-blue.svg)](https://godoc.org/github.com/go-pdf/fpdf)
 
-![](https://github.com/go-pdf/fpdf/raw/master/image/logo_gofpdf.jpg?raw=true)
+![](https://github.com/go-pdf/fpdf/raw/master/image/logo_gofpdf.jpg)
 
 Package `go-pdf/fpdf` implements a PDF document generator with high level
 support for text, drawing and images.

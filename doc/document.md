@@ -259,7 +259,7 @@ for file attachments and annotations.
 [last-commit]: https://github.com/go-pdf/fpdf/commit/603f56990463f011cb1dbb64ef7f872c1adc009a
 [license]: https://raw.githubusercontent.com/go-pdf/fpdf/master/LICENSE
 [lint]: https://github.com/golang/lint
-[logo]: https://github.com/go-pdf/fpdf/raw/master/image/logo_gofpdf.jpg?raw=true
+[logo]: https://github.com/go-pdf/fpdf/raw/master/image/logo_gofpdf.jpg
 [noto]: https://github.com/jsntn/webfonts/blob/master/NotoSansSC-Regular.ttf
 [pr]: https://help.github.com/articles/using-pull-requests/
 [report]: https://goreportcard.com/report/github.com/go-pdf/fpdf
