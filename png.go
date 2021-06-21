@@ -38,7 +38,7 @@ func (f *Fpdf) pngColorSpace(ct byte) (colspace string, colorVal int) {
 	return
 }
 
-func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoType) {
+func (f *Fpdf) parsepngstream(buf *rbuffer, readdpi bool) (info *ImageInfoType) {
 	info = f.newImageInfo()
 	// 	Check signature
 	if string(buf.Next(8)) != "\x89PNG\x0d\x0a\x1a\x0a" {

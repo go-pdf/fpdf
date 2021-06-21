@@ -73,10 +73,40 @@ func fileSize(filename string) (size int64, ok bool) {
 	return
 }
 
+type rbuffer struct {
+	p []byte
+	c int
+}
+
+func (r *rbuffer) Read(p []byte) (int, error) {
+	if r.c >= len(r.p) {
+		return 0, io.EOF
+	}
+	n := copy(p, r.p[r.c:])
+	r.c += n
+	return n, nil
+}
+
+func (r *rbuffer) ReadByte() (byte, error) {
+	if r.c >= len(r.p) {
+		return 0, io.EOF
+	}
+	v := r.p[r.c]
+	r.c++
+	return v, nil
+}
+
+func (r *rbuffer) Next(n int) []byte {
+	c := r.c
+	r.c += n
+	return r.p[c:r.c]
+}
+
 // bufferFromReader returns a new buffer populated with the contents of the specified Reader
-func bufferFromReader(r io.Reader) (b *bytes.Buffer, err error) {
-	b = new(bytes.Buffer)
-	_, err = b.ReadFrom(r)
+func bufferFromReader(r io.Reader) (b *rbuffer, err error) {
+	buf := new(bytes.Buffer)
+	_, err = buf.ReadFrom(r)
+	b = &rbuffer{p: buf.Bytes()}
 	return
 }
 

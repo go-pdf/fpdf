@@ -3921,19 +3921,15 @@ func (f *Fpdf) parsepng(r io.Reader, readdpi bool) (info *ImageInfoType) {
 	return f.parsepngstream(buf, readdpi)
 }
 
-func (f *Fpdf) readBeInt32(r io.Reader) (val int32) {
-	err := binary.Read(r, binary.BigEndian, &val)
-	if err != nil && err != io.EOF {
-		f.err = err
-	}
+func (f *Fpdf) readBeInt32(r *rbuffer) (val int32) {
+	buf := r.Next(4)
+	val = int32(binary.BigEndian.Uint32(buf))
 	return
 }
 
-func (f *Fpdf) readByte(r io.Reader) (val byte) {
-	err := binary.Read(r, binary.BigEndian, &val)
-	if err != nil {
-		f.err = err
-	}
+func (f *Fpdf) readByte(r *rbuffer) (val byte) {
+	val = r.p[r.c]
+	r.c++
 	return
 }
 
@@ -3956,7 +3952,7 @@ func (f *Fpdf) parsegif(r io.Reader) (info *ImageInfoType) {
 		f.err = err
 		return
 	}
-	return f.parsepngstream(pngBuf, false)
+	return f.parsepngstream(&rbuffer{p: pngBuf.Bytes()}, false)
 }
 
 // newobj begins a new object
