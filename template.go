@@ -205,13 +205,18 @@ func (f *Fpdf) putTemplates() {
 
 		//  Write the template's byte stream
 		buffer := t.Bytes()
+		var mem *membuffer
 		// fmt.Println("Put template bytes", string(buffer[:]))
 		if f.compress {
-			buffer = sliceCompress(buffer)
+			mem = xmem.compress(buffer)
+			buffer = mem.bytes()
 		}
 		f.outf("/Length %d >>", len(buffer))
 		f.putstream(buffer)
 		f.out("endobj")
+		if mem != nil {
+			mem.release()
+		}
 	}
 }
 

@@ -17,7 +17,6 @@
 package fpdf
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 )
@@ -38,64 +37,67 @@ func (f *Fpdf) pngColorSpace(ct byte) (colspace string, colorVal int) {
 	return
 }
 
-func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoType) {
+func (f *Fpdf) parsepngstream(r *rbuffer, readdpi bool) (info *ImageInfoType) {
 	info = f.newImageInfo()
 	// 	Check signature
-	if string(buf.Next(8)) != "\x89PNG\x0d\x0a\x1a\x0a" {
+	if string(r.Next(8)) != "\x89PNG\x0d\x0a\x1a\x0a" {
 		f.err = fmt.Errorf("not a PNG buffer")
 		return
 	}
 	// Read header chunk
-	_ = buf.Next(4)
-	if string(buf.Next(4)) != "IHDR" {
+	_ = r.Next(4)
+	if string(r.Next(4)) != "IHDR" {
 		f.err = fmt.Errorf("incorrect PNG buffer")
 		return
 	}
-	w := f.readBeInt32(buf)
-	h := f.readBeInt32(buf)
-	bpc := f.readByte(buf)
+	w := r.i32()
+	h := r.i32()
+	bpc := r.u8()
 	if bpc > 8 {
 		f.err = fmt.Errorf("16-bit depth not supported in PNG file")
 	}
-	ct := f.readByte(buf)
+	ct := r.u8()
 	var colspace string
 	var colorVal int
 	colspace, colorVal = f.pngColorSpace(ct)
 	if f.err != nil {
 		return
 	}
-	if f.readByte(buf) != 0 {
+	if r.u8() != 0 {
 		f.err = fmt.Errorf("'unknown compression method in PNG buffer")
 		return
 	}
-	if f.readByte(buf) != 0 {
+	if r.u8() != 0 {
 		f.err = fmt.Errorf("'unknown filter method in PNG buffer")
 		return
 	}
-	if f.readByte(buf) != 0 {
+	if r.u8() != 0 {
 		f.err = fmt.Errorf("interlacing not supported in PNG buffer")
 		return
 	}
-	_ = buf.Next(4)
+	_ = r.Next(4)
 	dp := sprintf("/Predictor 15 /Colors %d /BitsPerComponent %d /Columns %d", colorVal, bpc, w)
 	// Scan chunks looking for palette, transparency and image data
-	pal := make([]byte, 0, 32)
-	var trns []int
-	data := make([]byte, 0, 32)
-	loop := true
+	var (
+		pal  []byte
+		trns []int
+		npix = w * h
+		data = make([]byte, 0, npix/8)
+		loop = true
+	)
 	for loop {
-		n := int(f.readBeInt32(buf))
+		n := int(r.i32())
 		// dbg("Loop [%d]", n)
-		switch string(buf.Next(4)) {
+		switch string(r.Next(4)) {
 		case "PLTE":
 			// dbg("PLTE")
 			// Read palette
-			pal = buf.Next(n)
-			_ = buf.Next(4)
+			pal = r.Next(n)
+			_ = r.Next(4)
 		case "tRNS":
 			// dbg("tRNS")
 			// Read transparency info
-			t := buf.Next(n)
+			t := r.Next(n)
 			switch ct {
 			case 0:
 				trns = []int{int(t[1])} // ord(substr($t,1,1)));
@@ -107,12 +109,12 @@ func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoT
 					trns = []int{pos} // array($pos);
 				}
 			}
-			_ = buf.Next(4)
+			_ = r.Next(4)
 		case "IDAT":
 			// dbg("IDAT")
 			// Read image data block
-			data = append(data, buf.Next(n)...)
-			_ = buf.Next(4)
+			data = append(data, r.Next(n)...)
+			_ = r.Next(4)
 		case "IEND":
 			// dbg("IEND")
 			loop = false
@@ -122,9 +124,9 @@ func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoT
 			// but we ignore files like this
 			// but if they're the same then we can stamp our info
 			// object with it
-			x := int(f.readBeInt32(buf))
-			y := int(f.readBeInt32(buf))
-			units := buf.Next(1)[0]
+			x := int(r.i32())
+			y := int(r.i32())
+			units := r.u8()
 			// fmt.Printf("got a pHYs block, x=%d, y=%d, u=%d, readdpi=%t\n",
 			// x, y, int(units), readdpi)
 			// only modify the info block if the user wants us to
@@ -137,10 +139,10 @@ func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoT
 					info.dpi = float64(x)
 				}
 			}
-			_ = buf.Next(4)
+			_ = r.Next(4)
 		default:
 			// dbg("default")
-			_ = buf.Next(n + 4)
+			_ = r.Next(n + 4)
 		}
 		if loop {
 			loop = n > 0
@@ -160,27 +162,33 @@ func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoT
 	// dbg("ct [%d]", ct)
 	if ct >= 4 {
 		// Separate alpha and color channels
-		var err error
-		data, err = sliceUncompress(data)
+		mem, err := xmem.uncompress(data)
 		if err != nil {
 			f.err = err
 			return
 		}
-		var color, alpha bytes.Buffer
+		data = mem.bytes()
+		var (
+			color wbuffer
+			alpha wbuffer
+		)
 		if ct == 4 {
 			// Gray image
 			width := int(w)
 			height := int(h)
 			length := 2 * width
+			sz := height * (width + 1)
+			color.p = data[:sz] // reuse decompressed data buffer.
+			alpha.p = make([]byte, sz)
 			var pos, elPos int
 			for i := 0; i < height; i++ {
 				pos = (1 + length) * i
-				color.WriteByte(data[pos])
-				alpha.WriteByte(data[pos])
+				color.u8(data[pos])
+				alpha.u8(data[pos])
 				elPos = pos + 1
 				for k := 0; k < width; k++ {
-					color.WriteByte(data[elPos])
-					alpha.WriteByte(data[elPos+1])
+					color.u8(data[elPos])
+					alpha.u8(data[elPos+1])
 					elPos += 2
 				}
 			}
@@ -189,21 +197,38 @@ func (f *Fpdf) parsepngstream(buf *bytes.Buffer, readdpi bool) (info *ImageInfoT
 			width := int(w)
 			height := int(h)
 			length := 4 * width
+			sz := width * height
+			color.p = data[:sz*3+height] // reuse decompressed data buffer.
+			alpha.p = make([]byte, sz+height)
 			var pos, elPos int
 			for i := 0; i < height; i++ {
 				pos = (1 + length) * i
-				color.WriteByte(data[pos])
-				alpha.WriteByte(data[pos])
+				color.u8(data[pos])
+				alpha.u8(data[pos])
 				elPos = pos + 1
 				for k := 0; k < width; k++ {
-					color.Write(data[elPos : elPos+3])
-					alpha.WriteByte(data[elPos+3])
+					tmp := data[elPos : elPos+4]
+					color.u8(tmp[0])
+					color.u8(tmp[1])
+					color.u8(tmp[2])
+					alpha.u8(tmp[3])
 					elPos += 4
 				}
 			}
 		}
-		data = sliceCompress(color.Bytes())
-		info.smask = sliceCompress(alpha.Bytes())
+
+		xc := xmem.compress(color.bytes())
+		data = xc.copy()
+		xc.release()
+
+		// release uncompressed data buffer, after the color buffer
+		// has been compressed.
+		mem.release()
+
+		xa := xmem.compress(alpha.bytes())
+		info.smask = xa.copy()
+		xa.release()
+
 		if f.pdfVersion < "1.4" {
 			f.pdfVersion = "1.4"
 		}

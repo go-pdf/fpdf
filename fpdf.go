@@ -23,7 +23,6 @@ package fpdf
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"image"
@@ -3913,7 +3912,7 @@ func (f *Fpdf) parsejpg(r io.Reader) (info *ImageInfoType) {
 
 // parsepng extracts info from a PNG data
 func (f *Fpdf) parsepng(r io.Reader, readdpi bool) (info *ImageInfoType) {
-	buf, err := bufferFromReader(r)
+	buf, err := newRBuffer(r)
 	if err != nil {
 		f.err = err
 		return
@@ -3921,25 +3920,9 @@ func (f *Fpdf) parsepng(r io.Reader, readdpi bool) (info *ImageInfoType) {
 	return f.parsepngstream(buf, readdpi)
 }
 
-func (f *Fpdf) readBeInt32(r io.Reader) (val int32) {
-	err := binary.Read(r, binary.BigEndian, &val)
-	if err != nil && err != io.EOF {
-		f.err = err
-	}
-	return
-}
-
-func (f *Fpdf) readByte(r io.Reader) (val byte) {
-	err := binary.Read(r, binary.BigEndian, &val)
-	if err != nil {
-		f.err = err
-	}
-	return
-}
-
 // parsegif extracts info from a GIF data (via PNG conversion)
 func (f *Fpdf) parsegif(r io.Reader) (info *ImageInfoType) {
-	data, err := bufferFromReader(r)
+	data, err := newRBuffer(r)
 	if err != nil {
 		f.err = err
 		return
@@ -3956,7 +3939,7 @@ func (f *Fpdf) parsegif(r io.Reader) (info *ImageInfoType) {
 		f.err = err
 		return
 	}
-	return f.parsepngstream(pngBuf, false)
+	return f.parsepngstream(&rbuffer{p: pngBuf.Bytes()}, false)
 }
 
 // newobj begins a new object
@@ -4194,9 +4177,11 @@ func (f *Fpdf) putpages() {
 		// Page content
 		f.newobj()
 		if f.compress {
-			data := sliceCompress(f.pages[n].Bytes())
+			mem := xmem.compress(f.pages[n].Bytes())
+			data := mem.bytes()
 			f.outf("<</Filter /FlateDecode /Length %d>>", len(data))
 			f.putstream(data)
+			mem.release()
 		} else {
 			f.outf("<</Length %d>>", f.pages[n].Len())
 			f.putstream(f.pages[n].Bytes())
@@ -4363,7 +4348,6 @@ func (f *Fpdf) putfonts() {
 				delete(usedRunes, 0)
 				utf8FontStream := font.utf8File.GenerateCutFont(usedRunes)
 				utf8FontSize := len(utf8FontStream)
-				compressedFontStream := sliceCompress(utf8FontStream)
 				CodeSignDictionary := font.utf8File.CodeSymbolDictionary
 				delete(CodeSignDictionary, 0)
 
@@ -4418,13 +4402,17 @@ func (f *Fpdf) putfonts() {
 					cidToGidMap[cc*2+1] = byte(glyph & 0xFF)
 				}
 
-				cidToGidMap = sliceCompress(cidToGidMap)
+				mem := xmem.compress(cidToGidMap)
+				cidToGidMap = mem.bytes()
 				f.newobj()
 				f.out("<</Length " + strconv.Itoa(len(cidToGidMap)) + "/Filter /FlateDecode>>")
 				f.putstream(cidToGidMap)
 				f.out("endobj")
+				mem.release()
 
 				//Font file
+				mem = xmem.compress(utf8FontStream)
+				compressedFontStream := mem.bytes()
 				f.newobj()
 				f.out("<</Length " + strconv.Itoa(len(compressedFontStream)))
 				f.out("/Filter /FlateDecode")
@@ -4432,6 +4420,7 @@ func (f *Fpdf) putfonts() {
 				f.out(">>")
 				f.putstream(compressedFontStream)
 				f.out("endobj")
+				mem.release()
 			default:
 				f.err = fmt.Errorf("unsupported font type: %s", tp)
 				return
@@ -4679,9 +4668,11 @@ func (f *Fpdf) putimage(info *ImageInfoType) {
 	if info.cs == "Indexed" {
 		f.newobj()
 		if f.compress {
-			pal := sliceCompress(info.pal)
+			mem := xmem.compress(info.pal)
+			pal := mem.bytes()
 			f.outf("<</Filter /FlateDecode /Length %d>>", len(pal))
 			f.putstream(pal)
+			mem.release()
 		} else {
 			f.outf("<</Length %d>>", len(info.pal))
 			f.putstream(info.pal)

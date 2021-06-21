@@ -19,7 +19,6 @@ package fpdf
 import (
 	"bufio"
 	"bytes"
-	"compress/zlib"
 	"fmt"
 	"io"
 	"math"
@@ -69,55 +68,6 @@ func fileSize(filename string) (size int64, ok bool) {
 	ok = err == nil
 	if ok {
 		size = info.Size()
-	}
-	return
-}
-
-// bufferFromReader returns a new buffer populated with the contents of the specified Reader
-func bufferFromReader(r io.Reader) (b *bytes.Buffer, err error) {
-	b = new(bytes.Buffer)
-	_, err = b.ReadFrom(r)
-	return
-}
-
-// sliceCompress returns a zlib-compressed copy of the specified byte array
-func sliceCompress(data []byte) []byte {
-	var buf bytes.Buffer
-	buf.Grow(len(data))
-	cmp, err := zlib.NewWriterLevel(&buf, zlib.BestSpeed)
-	if err != nil {
-		panic(fmt.Errorf("could not create zlib writer: %w", err))
-	}
-	_, err = cmp.Write(data)
-	if err != nil {
-		panic(fmt.Errorf("could not zlib-compress slice: %w", err))
-	}
-
-	err = cmp.Close()
-	if err != nil {
-		panic(fmt.Errorf("could not close zlib writer: %w", err))
-	}
-
-	raw := buf.Bytes()
-	return raw[:len(raw):len(raw)]
-}
-
-// sliceUncompress returns an uncompressed copy of the specified zlib-compressed byte array
-func sliceUncompress(data []byte) (outData []byte, err error) {
-	inBuf := bytes.NewReader(data)
-	r, err := zlib.NewReader(inBuf)
-	defer func() {
-		e1 := r.Close()
-		if e1 != nil && err == nil {
-			err = e1
-		}
-	}()
-	if err == nil {
-		var outBuf bytes.Buffer
-		_, err = outBuf.ReadFrom(r)
-		if err == nil {
-			outData = outBuf.Bytes()
-		}
 	}
 	return
 }

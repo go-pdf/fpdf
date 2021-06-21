@@ -2934,6 +2934,7 @@ func BenchmarkLineTo(b *testing.B) {
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		pdf.LineTo(170, 20)
 	}
@@ -2943,6 +2944,7 @@ func BenchmarkCurveTo(b *testing.B) {
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
 
+	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		pdf.CurveTo(190, 100, 105, 100)
 	}

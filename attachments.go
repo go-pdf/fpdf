@@ -39,7 +39,9 @@ func checksum(data []byte) string {
 func (f *Fpdf) writeCompressedFileObject(content []byte) {
 	lenUncompressed := len(content)
 	sum := checksum(content)
-	compressed := sliceCompress(content)
+	mem := xmem.compress(content)
+	defer mem.release()
+	compressed := mem.bytes()
 	lenCompressed := len(compressed)
 	f.newobj()
 	f.outf("<< /Type /EmbeddedFile /Length %d /Filter /FlateDecode /Params << /CheckSum <%s> /Size %d >> >>\n",
