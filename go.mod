@@ -2,6 +2,9 @@ module github.com/go-pdf/fpdf
 
 go 1.14
 
+// v1.4.2 was imported from phpdave11/gofpdf by mistake.
+retract v1.4.2
+
 require (
 	github.com/boombuler/barcode v1.0.1
 	github.com/phpdave11/gofpdi v1.0.13
