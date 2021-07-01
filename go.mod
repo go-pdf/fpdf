@@ -1,6 +1,6 @@
 module github.com/go-pdf/fpdf
 
-go 1.14
+go 1.16
 
 // v1.4.2 was imported from phpdave11/gofpdf by mistake.
 retract v1.4.2
