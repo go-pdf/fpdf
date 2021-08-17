@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 )
 
@@ -11,7 +11,7 @@ func main() {
 	var pos int
 	var b byte
 	var err error
-	buf, err = ioutil.ReadAll(os.Stdin)
+	buf, err = io.ReadAll(os.Stdin)
 	if err == nil {
 		for _, b = range buf {
 			fmt.Printf("0x%02X, ", b)

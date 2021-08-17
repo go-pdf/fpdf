@@ -20,7 +20,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
+	"os"
 	"sort"
 )
 
@@ -132,9 +132,9 @@ func ComparePDFs(rdr1, rdr2 io.Reader, printDiff bool) (err error) {
 // the second file is missing, otherwise an error.
 func ComparePDFFiles(file1Str, file2Str string, printDiff bool) (err error) {
 	var sl1, sl2 []byte
-	sl1, err = ioutil.ReadFile(file1Str)
+	sl1, err = os.ReadFile(file1Str)
 	if err == nil {
-		sl2, err = ioutil.ReadFile(file2Str)
+		sl2, err = os.ReadFile(file2Str)
 		if err == nil {
 			err = CompareBytes(sl1, sl2, printDiff)
 		} else {

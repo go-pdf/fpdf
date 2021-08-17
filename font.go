@@ -30,7 +30,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -94,7 +93,7 @@ func getInfoFromTrueType(fileStr string, msgWriter io.Writer, embed bool, encLis
 			err = fmt.Errorf("font license does not allow embedding")
 			return
 		}
-		info.Data, err = ioutil.ReadFile(fileStr)
+		info.Data, err = os.ReadFile(fileStr)
 		if err != nil {
 			return
 		}
@@ -406,7 +405,7 @@ func makeDefinitionFile(fileStr, tpStr, encodingFileStr string, embed bool, encL
 // embed is true if the font is to be embedded in the PDF files.
 func MakeFont(fontFileStr, encodingFileStr, dstDirStr string, msgWriter io.Writer, embed bool) error {
 	if msgWriter == nil {
-		msgWriter = ioutil.Discard
+		msgWriter = io.Discard
 	}
 	if !fileExist(fontFileStr) {
 		return fmt.Errorf("font file not found: %s", fontFileStr)

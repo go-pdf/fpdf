@@ -6,12 +6,12 @@ package fpdf
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"testing"
 )
 
 func BenchmarkParsePNG_rgb(b *testing.B) {
-	raw, err := ioutil.ReadFile("image/golang-gopher.png")
+	raw, err := os.ReadFile("image/golang-gopher.png")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -27,7 +27,7 @@ func BenchmarkParsePNG_rgb(b *testing.B) {
 }
 
 func BenchmarkParsePNG_gray(b *testing.B) {
-	raw, err := ioutil.ReadFile("image/logo-gray.png")
+	raw, err := os.ReadFile("image/logo-gray.png")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func BenchmarkParsePNG_gray(b *testing.B) {
 }
 
 func BenchmarkParsePNG_small(b *testing.B) {
-	raw, err := ioutil.ReadFile("image/logo.png")
+	raw, err := os.ReadFile("image/logo.png")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -59,7 +59,7 @@ func BenchmarkParsePNG_small(b *testing.B) {
 }
 
 func BenchmarkParseJPG(b *testing.B) {
-	raw, err := ioutil.ReadFile("image/logo_gofpdf.jpg")
+	raw, err := os.ReadFile("image/logo_gofpdf.jpg")
 	if err != nil {
 		b.Fatal(err)
 	}
@@ -74,7 +74,7 @@ func BenchmarkParseJPG(b *testing.B) {
 }
 
 func BenchmarkParseGIF(b *testing.B) {
-	raw, err := ioutil.ReadFile("image/logo.gif")
+	raw, err := os.ReadFile("image/logo.gif")
 	if err != nil {
 		b.Fatal(err)
 	}
