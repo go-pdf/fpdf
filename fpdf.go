@@ -2567,7 +2567,7 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		w = f.w - f.rMargin - f.x
 	}
 	var s fmtBuffer
-	if fill || borderStr == "1" {
+	if h > 0 && (fill || borderStr == "1") {
 		var op string
 		if fill {
 			if borderStr == "1" {
