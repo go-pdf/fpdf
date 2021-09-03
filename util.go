@@ -240,7 +240,7 @@ func (f *Fpdf) UnicodeTranslatorFromDescriptor(cpStr string) (rep func(string) s
 		if len(cpStr) == 0 {
 			cpStr = "cp1252"
 		}
-		emb, err := embeddedFontMap.Open("font_embed/" + cpStr + ".map")
+		emb, err := embFS.Open("font_embed/" + cpStr + ".map")
 		if err == nil {
 			rep, f.err = UnicodeTranslator(emb)
 		} else {

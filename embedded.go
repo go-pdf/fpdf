@@ -24,16 +24,13 @@ import (
 	"strings"
 )
 
-//go:embed font_embed/*.map
-var embeddedFontMap embed.FS // for util.go (f *Fpdf) UnicodeTranslatorFromDescriptor
-
-//go:embed font_embed/*.json
-var embeddedFontJson embed.FS
+//go:embed font_embed/*.json font_embed/*.map
+var embFS embed.FS
 
 func (f *Fpdf) coreFontReader(familyStr, styleStr string) (r io.Reader) {
 	key := familyStr + styleStr
 	key = strings.ToLower(key)
-	emb, err := embeddedFontJson.Open("font_embed/" + key + ".json")
+	emb, err := embFS.Open("font_embed/" + key + ".json")
 	if err == nil {
 		r = emb
 	} else {
