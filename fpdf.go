@@ -2299,6 +2299,7 @@ func (f *Fpdf) SetFont(familyStr, styleStr string, size float64) {
 			if !ok {
 				rdr := f.coreFontReader(familyStr, styleStr)
 				if f.err == nil {
+					defer rdr.Close()
 					f.AddFontFromReader(familyStr, styleStr, rdr)
 				}
 				if f.err != nil {
