@@ -242,6 +242,7 @@ func (f *Fpdf) UnicodeTranslatorFromDescriptor(cpStr string) (rep func(string) s
 		}
 		emb, err := embFS.Open("font_embed/" + cpStr + ".map")
 		if err == nil {
+			defer emb.Close()
 			rep, f.err = UnicodeTranslator(emb)
 		} else {
 			rep, f.err = UnicodeTranslatorFromFile(filepath.Join(f.fontpath, cpStr) + ".map")
