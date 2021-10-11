@@ -3718,6 +3718,20 @@ func (f *Fpdf) Output(w io.Writer) error {
 	return f.err
 }
 
+// OutputRaw returns a byte slice containing the PDF document. Returned slice
+// will be nil if an error has occurred in the document generation process.
+// After returning, f is in a closed state and its methods should not be called.
+func (f *Fpdf) OutputRaw() ([]byte, error) {
+	if f.err != nil {
+		return nil, f.err
+	}
+	// dbg("Output")
+	if f.state < 3 {
+		f.Close()
+	}
+	return f.buffer.Bytes(), f.err
+}
+
 func (f *Fpdf) getpagesizestr(sizeStr string) (size SizeType) {
 	if f.err != nil {
 		return
