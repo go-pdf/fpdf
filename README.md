@@ -204,12 +204,11 @@ are the preferred means of accepting your changes.
 
 ## License
 
-`go-pdf/fpdf` is released under the MIT License. It is copyrighted by Dave Barnes
-and the contributors acknowledged below.
+`go-pdf/fpdf` is released under the MIT License. It is copyrighted by Kurt Jung and the contributors acknowledged below.
 
 ## Acknowledgments
 
-Thank you to Kurt Jung who originally wrote gofpdf in 2013 - 2019.
+Thank you to Kurt Jung who originally wrote [gofpdf](https://github.com/jung-kurt/gofpdf) in 2013 - 2019.
 This package’s code and documentation are closely derived from the
 [FPDF](http://www.fpdf.org/) library created by Olivier Plathey, and a
 number of font and image resources are copied directly from it. Bruno
