@@ -26,12 +26,8 @@ type Attachment struct {
 
 // return the hex encoded checksum of `data`
 func checksum(data []byte) string {
-	tmp := md5.Sum(data)
-	sl := make([]byte, len(tmp))
-	for i, v := range tmp {
-		sl[i] = v
-	}
-	return hex.EncodeToString(sl)
+	sl := md5.Sum(data)
+	return hex.EncodeToString(sl[:])
 }
 
 // Writes a compressed file like object as "/EmbeddedFile". Compressing is
