@@ -272,8 +272,7 @@ func barcodeKey(bcode barcode.Barcode) string {
 // add the barcode to the page.
 func registerScaledBarcode(pdf barcodePdf, code string, bcode barcode.Barcode) error {
 	buf := new(bytes.Buffer)
-	imgOptions := jpeg.Options{Quality: 100}
-	err := jpeg.Encode(buf, bcode, imgOptions)
+	err := jpeg.Encode(buf, bcode, &jpeg.Options{Quality: 100})
 
 	if err != nil {
 		return err
