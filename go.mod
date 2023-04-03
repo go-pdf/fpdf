@@ -1,6 +1,6 @@
 module github.com/go-pdf/fpdf
 
-go 1.17
+go 1.19
 
 retract (
 	// v1.4.3 was tagged to retract v1.4.2
