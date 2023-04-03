@@ -19,10 +19,12 @@ package fpdf
 import (
 	"bytes"
 	"crypto/sha1"
+	"encoding/binary"
 	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"time"
 )
 
@@ -180,9 +182,70 @@ type ImageInfoType struct {
 	i     string  // SHA-1 checksum of the above values.
 }
 
+type idEncoder struct {
+	w   io.Writer
+	buf []byte
+	err error
+}
+
+func newIDEncoder(w io.Writer) *idEncoder {
+	return &idEncoder{
+		w:   w,
+		buf: make([]byte, 8),
+	}
+}
+
+func (enc *idEncoder) i64(v int64) {
+	if enc.err != nil {
+		return
+	}
+	binary.LittleEndian.PutUint64(enc.buf, uint64(v))
+	_, enc.err = enc.w.Write(enc.buf)
+}
+
+func (enc *idEncoder) f64(v float64) {
+	if enc.err != nil {
+		return
+	}
+	binary.LittleEndian.PutUint64(enc.buf, math.Float64bits(v))
+	_, enc.err = enc.w.Write(enc.buf)
+}
+
+func (enc *idEncoder) str(v string) {
+	if enc.err != nil {
+		return
+	}
+	_, enc.err = enc.w.Write([]byte(v))
+}
+
+func (enc *idEncoder) bytes(v []byte) {
+	if enc.err != nil {
+		return
+	}
+	_, enc.err = enc.w.Write(v)
+}
+
 func generateImageID(info *ImageInfoType) (string, error) {
-	b, err := info.GobEncode()
-	return fmt.Sprintf("%x", sha1.Sum(b)), err
+	sha := sha1.New()
+	enc := newIDEncoder(sha)
+	enc.bytes(info.data)
+	enc.bytes(info.smask)
+	enc.i64(int64(info.n))
+	enc.f64(info.w)
+	enc.f64(info.h)
+	enc.str(info.cs)
+	enc.bytes(info.pal)
+	enc.i64(int64(info.bpc))
+	enc.str(info.f)
+	enc.str(info.dp)
+	for _, v := range info.trns {
+		enc.i64(int64(v))
+	}
+	enc.f64(info.scale)
+	enc.f64(info.dpi)
+	enc.str(info.i)
+
+	return fmt.Sprintf("%x", sha.Sum(nil)), nil
 }
 
 // GobEncode encodes the receiving image to a byte slice.
