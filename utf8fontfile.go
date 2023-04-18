@@ -992,7 +992,11 @@ func (utf *utf8FontFile) assembleTables() []byte {
 
 	answer = append(answer, packHeader(0x00010000, tablesCount, findSize, writer, rOffset)...)
 
-	tables := utf.outTablesData
+	tables := make(map[string][]byte, len(utf.outTablesData))
+	for k, v := range utf.outTablesData {
+		tables[k] = make([]byte, len(v))
+		copy(tables[k], v)
+	}
 	tablesNames := keySortStrings(tables)
 
 	offset := 12 + tablesCount*16

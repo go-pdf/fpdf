@@ -28,6 +28,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -2622,6 +2623,33 @@ func TestIssue0316(t *testing.T) {
 	if !bytes.Equal(fontBytes, ofontBytes) {
 		t.Fatal("Font data changed during pdf generation")
 	}
+}
+
+func TestConcurrentAddUTF8FontFromBytes(t *testing.T) {
+	fontBytes, err := os.ReadFile(example.FontFile("DejaVuSansCondensed.ttf"))
+	if err != nil {
+		t.Fatalf("could not read UTF8 font bytes: %+v", err)
+	}
+
+	wg := new(sync.WaitGroup)
+	createPDF := func() {
+		pdf := fpdf.New(fpdf.OrientationPortrait, "mm", "A4", "")
+		pdf.AddPage()
+		pdf.AddUTF8FontFromBytes("dejavu", "", fontBytes)
+		pdf.SetFont("dejavu", "", 16)
+		pdf.Cell(40, 10, "Hello World!")
+		err := pdf.Output(io.Discard)
+		if err != nil {
+			t.Error(err)
+		}
+		wg.Done()
+	}
+
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go createPDF()
+	}
+	wg.Wait()
 }
 
 func TestMultiCellUnsupportedChar(t *testing.T) {
