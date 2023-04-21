@@ -75,7 +75,7 @@ jobs:
       run: |
         go run ./ci/run-tests.go $TAGS
     - name: static-check
-      uses: dominikh/staticcheck-action@v1.2.0
+      uses: dominikh/staticcheck-action@v1
       with:
         install-go: false
         cache-key: ${{ matrix.platform }}
