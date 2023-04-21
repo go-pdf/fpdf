@@ -634,7 +634,7 @@ type Fpdf struct {
 	title            string                     // title
 	subject          string                     // subject
 	author           string                     // author
-	documentLang     string                     // lang
+	lang             string                     // lang
 	keywords         string                     // keywords
 	creator          string                     // creator
 	creationDate     time.Time                  // override for document CreationDate value
