@@ -4897,8 +4897,8 @@ func (f *Fpdf) putinfo() {
 func (f *Fpdf) putcatalog() {
 	f.out("/Type /Catalog")
 	f.out("/Pages 1 0 R")
-	if f.documentLang != "" {
-		f.outf("/Lang (%s)", f.documentLang)
+	if f.lang != "" {
+		f.outf("/Lang (%s)", f.lang)
 	}
 	switch f.zoomMode {
 	case "fullpage":
