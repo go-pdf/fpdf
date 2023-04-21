@@ -82,4 +82,4 @@ jobs:
         version: "2023.1"
     - name: Upload-Coverage
       if: matrix.platform == 'ubuntu-latest'
-      uses: codecov/codecov-action@v1
+      uses: codecov/codecov-action@v3
