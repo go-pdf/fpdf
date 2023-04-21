@@ -605,9 +605,9 @@ func (f *Fpdf) SetAuthor(authorStr string, isUTF8 bool) {
 	f.author = authorStr
 }
 
-// SetDocumentLang defines natural language of the document (e.g. "de-CH").
-func (f *Fpdf) SetDocumentLang(lang string) {
-	f.documentLang = lang
+// SetLang defines the natural language of the document (e.g. "de-CH").
+func (f *Fpdf) SetLang(lang string) {
+	f.lang = lang
 }
 
 // SetKeywords defines the keywords of the document. keywordStr is a
