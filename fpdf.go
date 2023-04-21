@@ -605,6 +605,11 @@ func (f *Fpdf) SetAuthor(authorStr string, isUTF8 bool) {
 	f.author = authorStr
 }
 
+// SetLang defines the natural language of the document (e.g. "de-CH").
+func (f *Fpdf) SetLang(lang string) {
+	f.lang = lang
+}
+
 // SetKeywords defines the keywords of the document. keywordStr is a
 // space-delimited string, for example "invoice August". isUTF8 indicates if
 // the string is encoded
@@ -4892,6 +4897,9 @@ func (f *Fpdf) putinfo() {
 func (f *Fpdf) putcatalog() {
 	f.out("/Type /Catalog")
 	f.out("/Pages 1 0 R")
+	if f.lang != "" {
+		f.outf("/Lang (%s)", f.lang)
+	}
 	switch f.zoomMode {
 	case "fullpage":
 		f.out("/OpenAction [3 0 R /Fit]")

@@ -479,6 +479,7 @@ type Pdf interface {
 	SetCreator(creatorStr string, isUTF8 bool)
 	SetDashPattern(dashArray []float64, dashPhase float64)
 	SetDisplayMode(zoomStr, layoutStr string)
+	SetLang(lang string)
 	SetDrawColor(r, g, b int)
 	SetDrawSpotColor(nameStr string, tint byte)
 	SetError(err error)
@@ -633,6 +634,7 @@ type Fpdf struct {
 	title            string                     // title
 	subject          string                     // subject
 	author           string                     // author
+	lang             string                     // lang
 	keywords         string                     // keywords
 	creator          string                     // creator
 	creationDate     time.Time                  // override for document CreationDate value
