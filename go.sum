@@ -1,3 +1,5 @@
+github.com/01walid/goarabic v0.0.1 h1:3zZHwUpdYTnFlPuKzwD/j/xinIhAeFEoq61aFMJKV9s=
+github.com/01walid/goarabic v0.0.1/go.mod h1:Q+FvyKHDS8E3qNzZ76sdyr2D6yYeDW2QRY0t4Mx4CZI=
 github.com/boombuler/barcode v1.0.0/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=
 github.com/boombuler/barcode v1.0.1 h1:NDBbPmhS+EqABEs5Kg3n/5ZNjy73Pz7SIV+KCeqyXcs=
 github.com/boombuler/barcode v1.0.1/go.mod h1:paBWMcWSl3LHKBqUq+rly7CNSldXjb2rDl3JlRe0mD8=

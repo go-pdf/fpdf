@@ -10,6 +10,7 @@ retract (
 )
 
 require (
+	github.com/01walid/goarabic v0.0.1
 	github.com/boombuler/barcode v1.0.1
 	github.com/phpdave11/gofpdi v1.0.13
 	github.com/ruudk/golang-pdf417 v0.0.0-20201230142125-a7e3863a1245

@@ -2429,6 +2429,38 @@ func ExampleFpdf_AddUTF8Font() {
 	// Successfully generated pdf/Fpdf_AddUTF8Font.pdf
 }
 
+// ExampleFpdf_RTL demonstrates how use rtl mode
+func ExampleFpdf_RTL() {
+	var fileStr string
+	var txtStr []byte
+	var err error
+
+	pdf := fpdf.New("P", "mm", "A4", "")
+
+	pdf.AddPage()
+
+	pdf.AddUTF8Font("dejavu", "", example.FontFile("DejaVuSansCondensed.ttf"))
+	pdf.AddUTF8Font("dejavu", "B", example.FontFile("DejaVuSansCondensed-Bold.ttf"))
+	pdf.AddUTF8Font("dejavu", "I", example.FontFile("DejaVuSansCondensed-Oblique.ttf"))
+	pdf.AddUTF8Font("dejavu", "BI", example.FontFile("DejaVuSansCondensed-BoldOblique.ttf"))
+	pdf.RTL()
+
+	fileStr = example.Filename("ExampleFpdf_RTL")
+	txtStr, err = os.ReadFile(example.TextFile("rtl-test.txt"))
+	if err == nil {
+
+		pdf.SetFont("dejavu", "B", 17)
+		pdf.MultiCell(100, 8, "تست لغات عربی و فارسی راست چین", "1", "C", false)
+		pdf.SetFont("dejavu", "", 14)
+		pdf.MultiCell(100, 5, string(txtStr), "1", "C", false)
+		pdf.Ln(15)
+		pdf.OutputFileAndClose(fileStr)
+	}
+	example.SummaryCompare(err, fileStr)
+	// Output:
+	// Successfully generated pdf/ExampleFpdf_RTL.pdf
+}
+
 // ExampleUTF8CutFont demonstrates how generate a TrueType font subset.
 func ExampleUTF8CutFont() {
 	var pdfFileStr, fullFontFileStr, subFontFileStr string

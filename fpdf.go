@@ -38,6 +38,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/01walid/goarabic"
 )
 
 var gl struct {
@@ -999,6 +1001,7 @@ func (f *Fpdf) GetStringSymbolWidth(s string) int {
 				w += 500
 			}
 		}
+		fmt.Println(s, w)
 	} else {
 		for _, ch := range []byte(s) {
 			if ch == 0 {
@@ -2426,6 +2429,11 @@ func (f *Fpdf) Bookmark(txtStr string, level int, y float64) {
 	f.outlines = append(f.outlines, outlineType{text: txtStr, level: level, y: y, p: f.PageNo(), prev: -1, last: -1, next: -1, first: -1})
 }
 
+func Rtl(str string) string {
+	return goarabic.Reverse(goarabic.ToGlyph(str))
+	//return goarabic.Reverse(str)
+}
+
 // Text prints a character string. The origin (x, y) is on the left of the
 // first character at the baseline. This method permits a string to be placed
 // precisely on the page, but it is usually easier to use Cell(), MultiCell()
@@ -2434,7 +2442,7 @@ func (f *Fpdf) Text(x, y float64, txtStr string) {
 	var txt2 string
 	if f.isCurrentUTF8 {
 		if f.isRTL {
-			txtStr = reverseText(txtStr)
+			txtStr = Rtl(txtStr)
 			x -= f.GetStringWidth(txtStr)
 		}
 		txt2 = f.escape(utf8toutf16(txtStr, false))
@@ -2648,7 +2656,7 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		//If multibyte, Tw has no effect - do word spacing using an adjustment before each space
 		if (f.ws != 0 || alignStr == "J") && f.isCurrentUTF8 { // && f.ws != 0
 			if f.isRTL {
-				txtStr = reverseText(txtStr)
+				txtStr = Rtl(txtStr)
 			}
 			wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
 			for _, uni := range txtStr {
@@ -2673,7 +2681,7 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 			var txt2 string
 			if f.isCurrentUTF8 {
 				if f.isRTL {
-					txtStr = reverseText(txtStr)
+					txtStr = Rtl(txtStr)
 				}
 				txt2 = f.escape(utf8toutf16(txtStr, false))
 				for _, uni := range txtStr {
