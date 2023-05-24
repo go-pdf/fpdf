@@ -125,6 +125,7 @@ func getInfoFromTrueType(fileStr string, msgWriter io.Writer, embed bool, encLis
 			uv := encList[j].uv
 			pos, ok := ttf.Chars[uint16(uv)]
 			if ok {
+				//TODO: check why diffrent presentations of same arabic character have equal widths
 				wd = round(k * float64(ttf.Widths[pos]))
 			} else {
 				fmt.Fprintf(msgWriter, "Character %s is missing\n", encList[j].name)

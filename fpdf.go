@@ -39,7 +39,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/01walid/goarabic"
+	"github.com/hmmftg/goarabic"
 )
 
 var gl struct {
@@ -2430,7 +2430,7 @@ func (f *Fpdf) Bookmark(txtStr string, level int, y float64) {
 }
 
 func Rtl(str string) string {
-	return goarabic.Reverse(goarabic.ToGlyph(str))
+	return goarabic.FixArabic(str)
 	//return goarabic.Reverse(str)
 }
 
@@ -2441,10 +2441,7 @@ func Rtl(str string) string {
 func (f *Fpdf) Text(x, y float64, txtStr string) {
 	var txt2 string
 	if f.isCurrentUTF8 {
-		if f.isRTL {
-			txtStr = Rtl(txtStr)
-			x -= f.GetStringWidth(txtStr)
-		}
+		x -= f.GetStringWidth(txtStr)
 		txt2 = f.escape(utf8toutf16(txtStr, false))
 		for _, uni := range txtStr {
 			f.currentFont.usedRunes[int(uni)] = int(uni)
@@ -2554,6 +2551,10 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		return
 	}
 
+	if IsRtl(txtStr) {
+		txtStr = Rtl(txtStr)
+	}
+
 	borderStr = strings.ToUpper(borderStr)
 	k := f.k
 	if f.y+h > f.pageBreakTrigger && !f.inHeader && !f.inFooter && f.acceptPageBreak() {
@@ -2655,9 +2656,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		}
 		//If multibyte, Tw has no effect - do word spacing using an adjustment before each space
 		if (f.ws != 0 || alignStr == "J") && f.isCurrentUTF8 { // && f.ws != 0
-			if f.isRTL {
-				txtStr = Rtl(txtStr)
-			}
 			wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
 			for _, uni := range txtStr {
 				f.currentFont.usedRunes[int(uni)] = int(uni)
@@ -2680,9 +2678,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		} else {
 			var txt2 string
 			if f.isCurrentUTF8 {
-				if f.isRTL {
-					txtStr = Rtl(txtStr)
-				}
 				txt2 = f.escape(utf8toutf16(txtStr, false))
 				for _, uni := range txtStr {
 					f.currentFont.usedRunes[int(uni)] = int(uni)
@@ -2726,17 +2721,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 	} else {
 		f.x += w
 	}
-}
-
-// Revert string to use in RTL languages
-func reverseText(text string) string {
-	oldText := []rune(text)
-	newText := make([]rune, len(oldText))
-	length := len(oldText) - 1
-	for i, r := range oldText {
-		newText[length-i] = r
-	}
-	return string(newText)
 }
 
 // Cell is a simpler version of CellFormat with no fill, border, links or
