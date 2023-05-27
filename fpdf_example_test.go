@@ -2439,10 +2439,10 @@ func ExampleFpdf_RTL() {
 
 	pdf.AddPage()
 
-	pdf.AddUTF8Font("bnazanin", "", example.FontFile("bnazanin.ttf"))
-	pdf.AddUTF8Font("bnazanin", "B", example.FontFile("bnazaninbd.ttf"))
-	pdf.AddUTF8Font("bnazanin", "I", example.FontFile("bnazanin.ttf"))
-	pdf.AddUTF8Font("bnazanin", "BI", example.FontFile("bnazaninbd.ttf"))
+	pdf.AddUTF8Font("bnazanin", "", example.FontFile("PNazanin.TTF"))
+	pdf.AddUTF8Font("bnazanin", "B", example.FontFile("PNazaninBold.TTF"))
+	pdf.AddUTF8Font("bnazanin", "I", example.FontFile("PNazanin.TTF"))
+	pdf.AddUTF8Font("bnazanin", "BI", example.FontFile("PNazaninBold.TTF"))
 
 	fileStr = example.Filename("ExampleFpdf_RTL")
 	txtStr, err = os.ReadFile(example.TextFile("rtl-test.txt"))
