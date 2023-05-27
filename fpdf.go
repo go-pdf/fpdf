@@ -1001,7 +1001,7 @@ func (f *Fpdf) GetStringSymbolWidth(s string) int {
 				w += 500
 			}
 		}
-		fmt.Println(s, w)
+		//fmt.Println(s, w)
 	} else {
 		for _, ch := range []byte(s) {
 			if ch == 0 {
