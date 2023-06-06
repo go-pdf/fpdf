@@ -2439,32 +2439,32 @@ func ExampleFpdf_RTL() {
 
 	pdf.AddPage()
 
-	pdf.AddUTF8Font("bnazanin", "", example.FontFile("PNazanin.TTF"))
-	pdf.AddUTF8Font("bnazanin", "B", example.FontFile("PNazaninBold.TTF"))
-	pdf.AddUTF8Font("bnazanin", "I", example.FontFile("PNazanin.TTF"))
-	pdf.AddUTF8Font("bnazanin", "BI", example.FontFile("PNazaninBold.TTF"))
+	pdf.AddUTF8Font("dejavu", "", example.FontFile("DejaVuSansCondensed.ttf"))
+	pdf.AddUTF8Font("dejavu", "B", example.FontFile("DejaVuSansCondensed-Bold.ttf"))
+	pdf.AddUTF8Font("dejavu", "I", example.FontFile("DejaVuSansCondensed.ttf"))
+	pdf.AddUTF8Font("dejavu", "BI", example.FontFile("DejaVuSansCondensed-Bold.ttf"))
 
-	fileStr = example.Filename("ExampleFpdf_RTL")
+	fileStr = example.Filename("Fpdf_RTL")
 	txtStr, err = os.ReadFile(example.TextFile("rtl-test.txt"))
 	if err == nil {
-		pdf.SetFont("bnazanin", "B", 17)
+		pdf.SetFont("dejavu", "B", 17)
 		pdf.MultiCell(100, 8, "تست لغات عربی و فارسی وسط چین", "1", "C", false)
-		pdf.SetFont("bnazanin", "", 14)
+		pdf.SetFont("dejavu", "", 14)
 		pdf.MultiCell(100, 5, string(txtStr), "1", "C", false)
-		pdf.SetFont("bnazanin", "B", 17)
+		pdf.SetFont("dejavu", "B", 17)
 		pdf.MultiCell(100, 8, "تست لغات عربی و فارسی راست چین", "1", "R", false)
-		pdf.SetFont("bnazanin", "", 14)
+		pdf.SetFont("dejavu", "", 14)
 		pdf.MultiCell(100, 5, string(txtStr), "1", "R", false)
-		pdf.SetFont("bnazanin", "B", 17)
+		pdf.SetFont("dejavu", "B", 17)
 		pdf.MultiCell(100, 8, "تست لغات عربی و فارسی چپ چین", "1", "L", false)
-		pdf.SetFont("bnazanin", "", 14)
+		pdf.SetFont("dejavu", "", 14)
 		pdf.MultiCell(100, 5, string(txtStr), "1", "L", false)
 		pdf.Ln(15)
 		pdf.OutputFileAndClose(fileStr)
 	}
 	example.SummaryCompare(err, fileStr)
 	// Output:
-	// Successfully generated pdf/ExampleFpdf_RTL.pdf
+	// Successfully generated pdf/Fpdf_RTL.pdf
 }
 
 // ExampleUTF8CutFont demonstrates how generate a TrueType font subset.

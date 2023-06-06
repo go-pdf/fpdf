@@ -1,3 +1,6 @@
+فارسی با انگلیسی:
+سلام abcdefghijklmnopqrstuvwwxyz خوبی xml چرا swf
+
 العربی:
 أكل بعض أكثر من هذه الكعك الفرنسي لينة وشرب بعض الشاي.
 
@@ -7,5 +10,5 @@
 فارسی با اعداد:
 سلام ۱۲۳ خوبی ۲۴۲۳ چرا 123
 
-فارسی با انگلیسی:
-سلام abcdefghijklmnopqrstuvwwxyz خوبی xml چرا swf
+english:
+sample english text همراه arabic لغت inside
