@@ -1001,7 +1001,6 @@ func (f *Fpdf) GetStringSymbolWidth(s string) int {
 				w += 500
 			}
 		}
-		//fmt.Println(s, w)
 	} else {
 		for _, ch := range []byte(s) {
 			if ch == 0 {
@@ -2429,9 +2428,9 @@ func (f *Fpdf) Bookmark(txtStr string, level int, y float64) {
 	f.outlines = append(f.outlines, outlineType{text: txtStr, level: level, y: y, p: f.PageNo(), prev: -1, last: -1, next: -1, first: -1})
 }
 
-func Rtl(str string) string {
+// rtl: make direction of text rtl
+func rtl(str string) string {
 	return goarabic.FixArabic(str)
-	//return goarabic.Reverse(str)
 }
 
 // Text prints a character string. The origin (x, y) is on the left of the
@@ -2551,8 +2550,8 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		return
 	}
 
-	if IsRtl(txtStr) {
-		txtStr = Rtl(txtStr)
+	if isRTL(txtStr) {
+		txtStr = rtl(txtStr)
 	}
 
 	borderStr = strings.ToUpper(borderStr)
