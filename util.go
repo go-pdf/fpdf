@@ -25,6 +25,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/text/encoding/unicode"
 )
 
 func must(n int, err error) {
@@ -78,36 +80,15 @@ func utf8toutf16(s string, withBOM ...bool) string {
 	if len(withBOM) > 0 {
 		bom = withBOM[0]
 	}
-	res := make([]byte, 0, 8)
+
+	bomState := unicode.IgnoreBOM
 	if bom {
-		res = append(res, 0xFE, 0xFF)
+		bomState = unicode.UseBOM
 	}
-	nb := len(s)
-	i := 0
-	for i < nb {
-		c1 := byte(s[i])
-		i++
-		switch {
-		case c1 >= 224:
-			// 3-byte character
-			c2 := byte(s[i])
-			i++
-			c3 := byte(s[i])
-			i++
-			res = append(res, ((c1&0x0F)<<4)+((c2&0x3C)>>2),
-				((c2&0x03)<<6)+(c3&0x3F))
-		case c1 >= 192:
-			// 2-byte character
-			c2 := byte(s[i])
-			i++
-			res = append(res, ((c1 & 0x1C) >> 2),
-				((c1&0x03)<<6)+(c2&0x3F))
-		default:
-			// Single-byte character
-			res = append(res, 0, c1)
-		}
-	}
-	return string(res)
+
+	enc := unicode.UTF16(unicode.BigEndian, bomState).NewEncoder()
+	u, _ := enc.String(s)
+	return string(u)
 }
 
 // intIf returns a if cnd is true, otherwise b

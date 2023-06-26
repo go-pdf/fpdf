@@ -38,6 +38,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hmmftg/goarabic"
 )
 
 var gl struct {
@@ -2426,6 +2428,11 @@ func (f *Fpdf) Bookmark(txtStr string, level int, y float64) {
 	f.outlines = append(f.outlines, outlineType{text: txtStr, level: level, y: y, p: f.PageNo(), prev: -1, last: -1, next: -1, first: -1})
 }
 
+// rtl: make direction of text rtl
+func rtl(str string) string {
+	return goarabic.FixArabic(str)
+}
+
 // Text prints a character string. The origin (x, y) is on the left of the
 // first character at the baseline. This method permits a string to be placed
 // precisely on the page, but it is usually easier to use Cell(), MultiCell()
@@ -2433,10 +2440,7 @@ func (f *Fpdf) Bookmark(txtStr string, level int, y float64) {
 func (f *Fpdf) Text(x, y float64, txtStr string) {
 	var txt2 string
 	if f.isCurrentUTF8 {
-		if f.isRTL {
-			txtStr = reverseText(txtStr)
-			x -= f.GetStringWidth(txtStr)
-		}
+		x -= f.GetStringWidth(txtStr)
 		txt2 = f.escape(utf8toutf16(txtStr, false))
 		for _, uni := range txtStr {
 			f.currentFont.usedRunes[int(uni)] = int(uni)
@@ -2546,6 +2550,10 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		return
 	}
 
+	if f.isRTL {
+		txtStr = rtl(txtStr)
+	}
+
 	borderStr = strings.ToUpper(borderStr)
 	k := f.k
 	if f.y+h > f.pageBreakTrigger && !f.inHeader && !f.inFooter && f.acceptPageBreak() {
@@ -2647,9 +2655,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		}
 		//If multibyte, Tw has no effect - do word spacing using an adjustment before each space
 		if (f.ws != 0 || alignStr == "J") && f.isCurrentUTF8 { // && f.ws != 0
-			if f.isRTL {
-				txtStr = reverseText(txtStr)
-			}
 			wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
 			for _, uni := range txtStr {
 				f.currentFont.usedRunes[int(uni)] = int(uni)
@@ -2672,9 +2677,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 		} else {
 			var txt2 string
 			if f.isCurrentUTF8 {
-				if f.isRTL {
-					txtStr = reverseText(txtStr)
-				}
 				txt2 = f.escape(utf8toutf16(txtStr, false))
 				for _, uni := range txtStr {
 					f.currentFont.usedRunes[int(uni)] = int(uni)
@@ -2718,17 +2720,6 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 	} else {
 		f.x += w
 	}
-}
-
-// Revert string to use in RTL languages
-func reverseText(text string) string {
-	oldText := []rune(text)
-	newText := make([]rune, len(oldText))
-	length := len(oldText) - 1
-	for i, r := range oldText {
-		newText[length-i] = r
-	}
-	return string(newText)
 }
 
 // Cell is a simpler version of CellFormat with no fill, border, links or
@@ -2834,6 +2825,9 @@ func (f *Fpdf) MultiCell(w, h float64, txtStr, borderStr, alignStr string, fill 
 		w = f.w - f.rMargin - f.x
 	}
 	wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
+
+	f.isRTL = isRTL(txtStr)
+
 	s := strings.Replace(txtStr, "\r", "", -1)
 	srune := []rune(s)
 
