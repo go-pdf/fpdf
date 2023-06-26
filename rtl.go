@@ -15,13 +15,32 @@
  */
 package fpdf
 
+var registeredIsRtl func(string) bool = nil
+
+func RegisterIsRtl(method func(string) bool) {
+	registeredIsRtl = method
+}
+
 // IsRtl checks if the text has rtl direction
 func isRTL(text string) bool {
+	if registeredIsRtl != nil {
+		return registeredIsRtl(text)
+	}
 	if len(text) == 0 {
 		return false
 	}
 	r := []rune(text)
-	if r[0] >= 0x0600 && 0x06FF >= r[0] {
+	//Ranges are taken from : https://stackoverflow.com/questions/12006095/javascript-how-to-check-if-character-is-rtl
+	if r[0] >= 0x0591 && 0x07FF >= r[0] {
+		return true
+	}
+	if r[0] >= 0xFB1D && 0xFDFD >= r[0] {
+		return true
+	}
+	if r[0] >= 0xFE70 && 0xFEFC >= r[0] {
+		return true
+	}
+	if r[0] == 0x200F || r[0] == 0x202B || r[0] == 0x202E {
 		return true
 	}
 	return false

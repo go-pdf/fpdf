@@ -2825,11 +2825,9 @@ func (f *Fpdf) MultiCell(w, h float64, txtStr, borderStr, alignStr string, fill 
 		w = f.w - f.rMargin - f.x
 	}
 	wmax := int(math.Ceil((w - 2*f.cMargin) * 1000 / f.fontSize))
-	if isRTL(txtStr) {
-		f.isRTL = true
-	} else {
-		f.isRTL = false
-	}
+
+	f.isRTL = isRTL(txtStr)
+
 	s := strings.Replace(txtStr, "\r", "", -1)
 	srune := []rune(s)
 
