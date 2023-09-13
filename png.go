@@ -58,7 +58,9 @@ func (f *Fpdf) parsepngstream(r *rbuffer, readdpi bool) (info *ImageInfoType) {
 	h := r.i32()
 	bpc := r.u8()
 	if bpc > 8 {
-		f.err = fmt.Errorf("16-bit depth not supported in PNG file")
+		if f.pdfVersion < pdfVers1_5 {
+			f.pdfVersion = pdfVers1_5
+		}
 	}
 	ct := r.u8()
 	var colspace string
