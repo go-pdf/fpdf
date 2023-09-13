@@ -1,5 +1,5 @@
 // Copyright ©2021 The go-pdf Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
+// Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
 //go:build ignore
