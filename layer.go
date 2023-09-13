@@ -80,10 +80,11 @@ func (f *Fpdf) OpenLayerPane() {
 }
 
 func (f *Fpdf) layerEndDoc() {
-	if len(f.layer.list) > 0 {
-		if f.pdfVersion < "1.5" {
-			f.pdfVersion = "1.5"
-		}
+	if len(f.layer.list) == 0 {
+		return
+	}
+	if f.pdfVersion < pdfVers1_5 {
+		f.pdfVersion = pdfVers1_5
 	}
 }
 

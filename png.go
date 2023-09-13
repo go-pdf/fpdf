@@ -233,8 +233,8 @@ func (f *Fpdf) parsepngstream(r *rbuffer, readdpi bool) (info *ImageInfoType) {
 		info.smask = xa.copy()
 		xa.release()
 
-		if f.pdfVersion < "1.4" {
-			f.pdfVersion = "1.4"
+		if f.pdfVersion < pdfVers1_4 {
+			f.pdfVersion = pdfVers1_4
 		}
 	}
 	info.data = data
