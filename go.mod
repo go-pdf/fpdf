@@ -1,4 +1,4 @@
-module github.com/go-pdf/fpdf
+module github.com/francescoalemanno/fpdf
 
 go 1.20
 
