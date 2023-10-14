@@ -1,4 +1,4 @@
-module github.com/francescoalemanno/fpdf
+module github.com/francescoalemanno/myfpdf
 
 go 1.20
 
