@@ -24,12 +24,12 @@ jobs:
     runs-on: ${{ matrix.platform }}
     steps:
     - name: Install Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
         go-version: ${{ matrix.go-version }}
  
     - name: Cache-Go
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
             ~/go/pkg/mod              # Module download cache
@@ -42,7 +42,7 @@ jobs:
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
  
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 1
 
@@ -79,7 +79,7 @@ jobs:
       with:
         install-go: false
         cache-key: ${{ matrix.platform }}
-        version: "2023.1"
+        version: "2023.1.6"
     - name: Upload-Coverage
       if: matrix.platform == 'ubuntu-latest'
       uses: codecov/codecov-action@v3
