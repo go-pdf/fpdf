@@ -2467,6 +2467,7 @@ func (f *Fpdf) Text(x, y float64, txtStr string) {
 // SetWordSpacing sets spacing between words of following text. See the
 // WriteAligned() example for a demonstration of its use.
 func (f *Fpdf) SetWordSpacing(space float64) {
+	f.ws = space
 	f.out(sprintf("%.5f Tw", space*f.k))
 }
 

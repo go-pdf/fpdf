@@ -604,6 +604,12 @@ func ExampleFpdf_WriteAligned() {
 	pageWidth -= leftMargin + rightMargin
 	pdf.SetWordSpacing((pageWidth - pdf.GetStringWidth(line)) / float64(strings.Count(line, " ")))
 	pdf.WriteAligned(pageWidth, 35, line, "L")
+	pdf.Ln(10)
+	pdf.SetFont("Helvetica", "U", 12)
+	pdf.WriteAligned(pageWidth, 35, line, "L")
+	pdf.Ln(10)
+	pdf.SetFont("Helvetica", "S", 12)
+	pdf.WriteAligned(pageWidth, 35, line, "L")
 	fileStr := example.Filename("Fpdf_WriteAligned")
 	err := pdf.OutputFileAndClose(fileStr)
 	example.SummaryCompare(err, fileStr)
