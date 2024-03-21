@@ -238,8 +238,8 @@ func NewCustom(init *InitType) (f *Fpdf) {
 // point, "mm" for millimeter, "cm" for centimeter, or "in" for inch. An empty
 // string will be replaced with "mm".
 //
-// sizeStr specifies the page size. Acceptable values are "A3", "A4", "A5",
-// "Letter", "Legal", or "Tabloid". An empty string will be replaced with "A4".
+// sizeStr specifies the page size. Acceptable values are "A1", "A2", "A3", "A4", "A5",
+// "A6", "Letter", "Legal", or "Tabloid". An empty string will be replaced with "A4".
 //
 // fontDirStr specifies the file system location in which font resources will
 // be found. An empty string is replaced with ".". This argument only needs to
