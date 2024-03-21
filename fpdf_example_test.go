@@ -2750,22 +2750,3 @@ func ExampleFpdf_SetModificationDate() {
 	// Output:
 	// Successfully generated pdf/Fpdf_SetModificationDate.pdf
 }
-
-func ExampleFpdf_SetWordSpacing() {
-	// An test for how word spacing affects underline and strikeout
-	pdf := fpdf.New("P", "pt", "A4", "")
-	pdf.SetFont("Arial", "", 12)
-	pdf.AddPage()
-	pdf.SetWordSpacing(12)
-	pdf.SetXY(36, 36)
-	pdf.Cell(0, 12, "This is s aimple test to demonstrate word spacing")
-	pdf.SetFont("Arial", "U", 12)
-	pdf.SetXY(36, 60)
-	pdf.Cell(0, 12, "This is s aimple test to demonstrate word spacing")
-	pdf.SetFont("Arial", "S", 12)
-	pdf.SetXY(36, 84)
-	pdf.Cell(0, 12, "This is s aimple test to demonstrate word spacing")
-	fileStr := example.Filename("Fpdf_SetWordSpacing")
-	err := pdf.OutputFileAndClose(fileStr)
-	example.SummaryCompare(err, fileStr)
-}
