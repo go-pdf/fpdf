@@ -22,7 +22,8 @@ package fpdf
 
 // SVGBasicWrite renders the paths encoded in the basic SVG image specified by
 // sb. The scale value is used to convert the coordinates in the path to the
-// unit of measure specified in New(). The current position (as set with a call
+// unit of measure specified in New(). If scale is 0, SVGBasicWrite automatically adapts the SVG document
+// to the PDF document unit. The current position (as set with a call
 // to SetXY()) is used as the origin of the image. The current line cap style
 // (as set with SetLineCapStyle()), line width (as set with SetLineWidth()),
 // and draw color (as set with SetDrawColor()) are used in drawing the image
@@ -34,6 +35,9 @@ func (f *Fpdf) SVGBasicWrite(sb *SVGBasicType, scale float64) {
 	var path []SVGBasicSegmentType
 	var seg SVGBasicSegmentType
 	var startX, startY float64
+	if scale == 0.0 {
+		scale = 1.0 / f.k
+	}
 	sval := func(origin float64, arg int) float64 {
 		return origin + scale*seg.Arg[arg]
 	}
