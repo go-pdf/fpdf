@@ -251,10 +251,17 @@ func SVGBasicParse(buf []byte) (sig SVGBasicType, err error) {
 	type pathType struct {
 		D string `xml:"d,attr"`
 	}
+	type rectType struct {
+		Width  float64 `xml:"width,attr"`
+		Height float64 `xml:"height,attr"`
+		X      float64 `xml:"x,attr"`
+		Y      float64 `xml:"y,attr"`
+	}
 	type srcType struct {
 		Wd    string     `xml:"width,attr"`
 		Ht    string     `xml:"height,attr"`
 		Paths []pathType `xml:"path"`
+		Rects []rectType `xml:"rect"`
 	}
 	var src srcType
 	var wd float64
@@ -280,6 +287,29 @@ func SVGBasicParse(buf []byte) (sig SVGBasicType, err error) {
 						sig.Segments = append(sig.Segments, segs)
 					}
 				}
+			}
+			for _, rect := range src.Rects {
+				segs = nil
+				segs = append(segs, SVGBasicSegmentType{
+					Cmd: 'M',
+					Arg: [6]float64{rect.X * adjustToPt, rect.Y * adjustToPt},
+				})
+				segs = append(segs, SVGBasicSegmentType{
+					Cmd: 'L',
+					Arg: [6]float64{(rect.X + rect.Width) * adjustToPt, rect.Y * adjustToPt},
+				})
+				segs = append(segs, SVGBasicSegmentType{
+					Cmd: 'L',
+					Arg: [6]float64{(rect.X + rect.Width) * adjustToPt, (rect.Y + rect.Height) * adjustToPt},
+				})
+				segs = append(segs, SVGBasicSegmentType{
+					Cmd: 'L',
+					Arg: [6]float64{rect.X * adjustToPt, (rect.Y + rect.Height) * adjustToPt},
+				})
+				segs = append(segs, SVGBasicSegmentType{
+					Cmd: 'Z',
+				})
+				sig.Segments = append(sig.Segments, segs)
 			}
 		} else {
 			err = fmt.Errorf("unacceptable values for basic SVG extent: %.2f x %.2f",
