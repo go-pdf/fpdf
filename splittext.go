@@ -26,9 +26,20 @@ func (f *Fpdf) SplitText(txt string, w float64) (lines []string) {
 	i := 0
 	j := 0
 	l := 0
+	fontLength := len(cw)
+
 	for i < nb {
 		c := s[i]
-		l += cw[c]
+
+		if int(c) >= fontLength {
+			// decimal representation of c is greater than the font length so it can't be used as index.
+			// Here we substitute those values with a space but perhaps it will be better
+			// to set l as the max char width for that font.
+			l += cw[rune(' ')]
+		} else {
+			l += cw[c]
+		}
+
 		if unicode.IsSpace(c) || isChinese(c) {
 			sep = i
 		}
