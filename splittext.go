@@ -26,16 +26,13 @@ func (f *Fpdf) SplitText(txt string, w float64) (lines []string) {
 	i := 0
 	j := 0
 	l := 0
-	fontLength := len(cw)
 
 	for i < nb {
 		c := s[i]
 
-		if int(c) >= fontLength {
-			// decimal representation of c is greater than the font length so it can't be used as index.
-			// Here we substitute those values with a space but perhaps it will be better
-			// to set l as the max char width for that font.
-			l += cw[rune(' ')]
+		if int(c) >= len(cw) {
+			// Decimal representation of c is greater than the font width's array size so it can't be used as index.
+			l += cw[f.currentFont.Desc.MissingWidth]
 		} else {
 			l += cw[c]
 		}

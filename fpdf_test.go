@@ -247,6 +247,27 @@ func TestFooterFuncLpi(t *testing.T) {
 	}
 }
 
+func TestIssue0069PanicOnSplitTextWithUnicode(t *testing.T) {
+	var str string
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("%q make SplitText panic", str)
+		}
+	}()
+
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 8)
+
+	testChars := []string{"«", "»", "—"}
+
+	for _, str = range testChars {
+		_ = pdf.SplitText(str, 100)
+	}
+
+}
+
 func TestSplitTextHandleCharacterNotInFontRange(t *testing.T) {
 	var str string
 
