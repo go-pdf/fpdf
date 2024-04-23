@@ -247,6 +247,52 @@ func TestFooterFuncLpi(t *testing.T) {
 	}
 }
 
+func TestIssue0069PanicOnSplitTextWithUnicode(t *testing.T) {
+	var str string
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("%q make SplitText panic", str)
+		}
+	}()
+
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 8)
+
+	testChars := []string{"«", "»", "—"}
+
+	for _, str = range testChars {
+		_ = pdf.SplitText(str, 100)
+	}
+
+}
+
+func TestSplitTextHandleCharacterNotInFontRange(t *testing.T) {
+	var str string
+
+	defer func() {
+		if r := recover(); r != nil {
+			t.Errorf("%q text make SplitText panic", str)
+		}
+	}()
+
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.AddPage()
+	pdf.SetFont("Arial", "", 8)
+
+	// Test values in utf8 beyond the ascii range
+	// I assuming that if the function can handle values in this range
+	// it can handle others since the function basically use the rune codepoint
+	// as a index for the font char width and 1_000_000 elements must be
+	// enough (hopefully!) for the fonts used in the real world.
+	for i := 128; i < 1_000_000; i++ {
+		str = string(rune(i))
+		_ = pdf.SplitText(str, 100)
+	}
+
+}
+
 func BenchmarkLineTo(b *testing.B) {
 	pdf := fpdf.New("P", "mm", "A4", "")
 	pdf.AddPage()
