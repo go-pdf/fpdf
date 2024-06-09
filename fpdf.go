@@ -2464,6 +2464,13 @@ func (f *Fpdf) Text(x, y float64, txtStr string) {
 	f.out(s)
 }
 
+// SetKerning sets spacing between letters of following text. See the
+// Kerning() example for a demonstration of its use.
+func (f *Fpdf) SetKerning(space float64) {
+	f.ws = space
+	f.out(sprintf("%.5f Tc", space*f.k))
+}
+
 // SetWordSpacing sets spacing between words of following text. See the
 // WriteAligned() example for a demonstration of its use.
 func (f *Fpdf) SetWordSpacing(space float64) {

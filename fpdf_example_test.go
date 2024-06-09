@@ -583,6 +583,30 @@ func ExampleFpdf_AddFont() {
 	// Successfully generated pdf/Fpdf_AddFont.pdf
 }
 
+// ExampleFpdf_SetKerning demonstrates how to use font kerning.
+func ExampleFpdf_SetKerning() {
+	pdf := fpdf.New("P", "mm", "A4", example.FontDir())
+	pdf.SetLeftMargin(50.0)
+	pdf.SetRightMargin(50.0)
+	pdf.AddPage()
+	pdf.SetFont("Helvetica", "", 12)
+
+	x := pdf.GetX()
+	y := pdf.GetY()
+	for i := 0.0; i < 5; i++ {
+		pdf.SetKerning(1 * i)
+		pdf.SetY(y + 15.0*i)
+		pdf.Cell(50, 10, "Hello world")
+		pdf.SetX(x)
+	}
+
+	fileStr := example.Filename("Fpdf_Kerning")
+	err := pdf.OutputFileAndClose(fileStr)
+	example.SummaryCompare(err, fileStr)
+	// Output:
+	// Successfully generated pdf/Fpdf_Kerning.pdf
+}
+
 // ExampleFpdf_WriteAligned demonstrates how to align text with the Write function.
 func ExampleFpdf_WriteAligned() {
 	pdf := fpdf.New("P", "mm", "A4", example.FontDir())
