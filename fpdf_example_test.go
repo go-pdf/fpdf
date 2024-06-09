@@ -622,7 +622,7 @@ func ExampleFpdf_WriteAligned() {
 	pdf.Ln(35)
 	pdf.WriteAligned(0, 35, "This text is aligned Right", "R")
 	pdf.Ln(35)
-	line := "This can by used to write justified text"
+	line := "This can be used to write justified text"
 	leftMargin, _, rightMargin, _ := pdf.GetMargins()
 	pageWidth, _ := pdf.GetPageSize()
 	pageWidth -= leftMargin + rightMargin
