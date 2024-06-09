@@ -253,9 +253,8 @@ support for imported objects and templates. Brigham Thompson added
 support for rounded rectangles. Joe Westcott added underline
 functionality and optimized image storage. Benoit KUGLER contributed
 support for rectangles with corners of unequal radius, modification
-times, and for file attachments and annotations. Brighten Tompkins (
-not related to Brigham Thompson and not an evil twin) contributed
-text kerning.
+times, and for file attachments and annotations. Brighten Tompkins
+contributed text kerning.
 
 ## Roadmap
 
