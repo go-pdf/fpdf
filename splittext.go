@@ -33,11 +33,11 @@ func (f *Fpdf) SplitText(txt string, w float64) (lines []string) {
 		if int(c) >= len(cw) {
 			// Decimal representation of c is greater than the font width's array size so it can't be used as index.
 			l += cw[f.currentFont.Desc.MissingWidth]
-		} else {
+		} else if cw[c] != 65535 { //Marker width 65535 used for zero width symbols
 			l += cw[c]
 		}
 
-		if unicode.IsSpace(c) || isChinese(c) {
+		if unicode.IsSpace(c) {
 			sep = i
 		}
 		if c == '\n' || l > wmax {

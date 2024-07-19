@@ -415,14 +415,6 @@ func remove(arr []int, key int) []int {
 	return append(arr[:n], arr[n+1:]...)
 }
 
-func isChinese(rune2 rune) bool {
-	// chinese unicode: 4e00-9fa5
-	if rune2 >= rune(0x4e00) && rune2 <= rune(0x9fa5) {
-		return true
-	}
-	return false
-}
-
 // Condition font family string to PDF name compliance. See section 5.3 (Names)
 // in https://resources.infosecinstitute.com/pdf-file-format-basic-structure/
 func fontFamilyEscape(familyStr string) (escStr string) {
