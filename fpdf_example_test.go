@@ -2800,3 +2800,21 @@ func ExampleFpdf_SetModificationDate() {
 	// Output:
 	// Successfully generated pdf/Fpdf_SetModificationDate.pdf
 }
+
+func ExampleFpdf_RoundedRect_rotated() {
+	pdf := fpdf.New("P", "mm", "A4", "")
+	pdf.SetFont("Arial", "", 12)
+	pdf.AddPage()
+
+	pdf.TransformBegin()
+	pdf.TransformRotate(45, 100, 100)
+	pdf.RoundedRect(50, 50, 10, 10, 2, "1234", "D")
+	pdf.TransformEnd()
+	pdf.Text(50, 100, "This text should not be rotated.")
+
+	fileStr := example.Filename("Fpdf_RoundedRect_rotated")
+	err := pdf.OutputFileAndClose(fileStr)
+	example.SummaryCompare(err, fileStr)
+	// Output:
+	// Successfully generated pdf/Fpdf_RoundedRect_rotated.pdf
+}
