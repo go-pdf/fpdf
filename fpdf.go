@@ -1206,6 +1206,7 @@ func (f *Fpdf) RoundedRect(x, y, w, h, r float64, corners string, stylestr strin
 func (f *Fpdf) RoundedRectExt(x, y, w, h, rTL, rTR, rBR, rBL float64, stylestr string) {
 	f.roundedRectPath(x, y, w, h, rTL, rTR, rBR, rBL)
 	f.out(fillDrawOp(stylestr))
+    f.out("Q")
 }
 
 // Circle draws a circle centered on point (x, y) with radius r.
