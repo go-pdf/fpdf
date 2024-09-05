@@ -2566,7 +2566,12 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 			f.ws = 0
 			f.out("0 Tw")
 		}
-		f.AddPageFormat(f.curOrientation, f.curPageSize)
+		if f.PageNo() == f.PageCount() {
+			f.AddPageFormat(f.curOrientation, f.curPageSize)
+		} else {
+			f.page += 1
+			f.y = f.tMargin
+		}
 		if f.err != nil {
 			return
 		}
