@@ -2567,7 +2567,58 @@ func (f *Fpdf) CellFormat(w, h float64, txtStr, borderStr string, ln int,
 			f.ws = 0
 			f.out("0 Tw")
 		}
-		f.AddPageFormat(f.curOrientation, f.curPageSize)
+		if f.PageNo() == f.PageCount() {
+			f.AddPageFormat(f.curOrientation, f.curPageSize)
+		} else {
+			familyStr := f.fontFamily
+			style := f.fontStyle
+			if f.underline {
+				style += "U"
+			}
+			if f.strikeout {
+				style += "S"
+			}
+			fontsize := f.fontSizePt
+			lw := f.lineWidth
+			dc := f.color.draw
+			fc := f.color.fill
+			tc := f.color.text
+			cf := f.colorFlag
+
+			f.page += 1
+			f.y = f.tMargin
+
+			// 	Set line cap style to current value
+			// f.out("2 J")
+			f.outf("%d J", f.capStyle)
+			// 	Set line join style to current value
+			f.outf("%d j", f.joinStyle)
+			// Set line width
+			f.lineWidth = lw
+			f.outf("%.2f w", lw*f.k)
+			// Set dash pattern
+			if len(f.dashArray) > 0 {
+				f.outputDashPattern()
+			}
+			// 	Set font
+			if familyStr != "" {
+				f.SetFont(familyStr, style, fontsize)
+				if f.err != nil {
+					return
+				}
+			}
+			// 	Set colors
+			f.color.draw = dc
+			if dc.str != "0 G" {
+				f.out(dc.str)
+			}
+			f.color.fill = fc
+			if fc.str != "0 g" {
+				f.out(fc.str)
+			}
+			f.color.text = tc
+			f.colorFlag = cf
+		}
 		if f.err != nil {
 			return
 		}
