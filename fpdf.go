@@ -2940,7 +2940,7 @@ func (f *Fpdf) MultiCell(w, h float64, txtStr, borderStr, alignStr string, fill 
 			}
 			continue
 		}
-		if c == ' ' || isChinese(c) {
+		if c == ' ' {
 			sep = i
 			ls = l
 			ns++
@@ -3074,7 +3074,12 @@ func (f *Fpdf) write(h float64, txtStr string, link int, linkStr string) {
 		if c == ' ' {
 			sep = i
 		}
-		l += float64(cw[int(c)])
+
+		if cw[int(c)] == 0 { //Marker width 0 used for missing symbols
+			l += float64(f.currentFont.Desc.MissingWidth)
+		} else if cw[int(c)] != 65535 { //Marker width 65535 used for zero width symbols
+			l += float64(cw[int(c)])
+		}
 		if l > wmax {
 			// Automatic line break
 			if sep == -1 {
